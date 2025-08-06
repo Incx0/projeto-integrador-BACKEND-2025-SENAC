@@ -11,11 +11,11 @@
   "license": "ISC",
   "author": "Isaías Cireli Mezzari",
   "type": "commonjs",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "npx ts-node app.ts",
+    "dev": "nodemon app.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
