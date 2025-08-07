@@ -32,11 +32,8 @@ const userService = {
     },
     addUserService: async (user) => {
         let { email, usuario, senha, nome, nascimento, cpf } = user;
-        if (!email || !usuario || !senha || !nome || !cpf) {
+        if (!email || !usuario || !senha || !nome || !cpf || !nascimento) {
             return { error: 'Insira os dados corretamente' };
-        }
-        else if (!nascimento) {
-            nascimento = "";
         }
         let conn;
         try {
@@ -45,8 +42,9 @@ const userService = {
             return { message: 'Usuario cadastrado com sucesso' };
         }
         catch (error) {
+            const err = error;
             console.error(error);
-            return { error: 'Erro ao cadastrar usuário' };
+            return { error: 'Erro ao cadastrar usuário', err };
         }
         finally {
             if (conn) {

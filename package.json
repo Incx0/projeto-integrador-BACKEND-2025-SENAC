@@ -16,7 +16,7 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc --watch",
-    "start": "ts-node src/app.ts",        
+    "start": "ts-node dist/app.js",        
     "serve": "nodemon dist/app.js",      
     "dev": "concurrently \"npm run watch\" \"npm run serve\""
   },
