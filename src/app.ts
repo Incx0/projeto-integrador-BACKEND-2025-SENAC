@@ -1,23 +1,19 @@
 // Importando bibliotecas principais
 import express from 'express';
 import cors from 'cors';
-
 // Importando conexões de banco de dados
-import dbMysql from './src/database/dbMysql';
-
-// Importando rotas
-import userRoute from './src/routes/user.route';
-
-// Inicializando o app
+import dbMysql from './database/dbMysql.js';
+// Importando routes
+import userRoute from './routes/user.route.js';
+// Inicializando o "app"
 const app = express();
-
 // Porta do servidor
 const port: number = 3000;
 
-// Conectando aos bancos de dados
+// Conectando ao banco de dados
 dbMysql.connect();
 
-// Middlewares
+// Middlewares(processa reqs e res's escrevi bunito agr)
 app.use(express.json());
 
 app.use(cors({
@@ -26,10 +22,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Rotas
+// Routes
 app.use("/user", userRoute);
 
-// Inicializando servidor
+// Iniciando server
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });
+
+//obs: estou aprendendo a usar o typescript(só sei js e quase nada de php) até o presente momento de dev da api, ter paciência
+//ps: sei html e css, mas nn é liguagem de progamação ;)

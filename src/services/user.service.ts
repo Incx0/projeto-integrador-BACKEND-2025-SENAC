@@ -1,6 +1,7 @@
-//import dbMysql from "../database/dbMysql";
-import dbMysql from "../database/dbMysql";
+//importando dbMysql(basicamente o db);
+import dbMysql from "../database/dbMysql.js";
 
+//nn apagar pelo amor de deus
 const connection = async () => dbMysql.connect()
 
 const userService = {
@@ -35,24 +36,33 @@ const userService = {
     console.log(row);
     return row;
   },
-  addUserService: async (user:any, callback:any)=> {
+  addUserService: async (user:any)=> {
     let {email,usuario,senha,nome,nascimento,cpf} = user;
+
     if (!email || !usuario || !senha || !nome || ! cpf) {
-    return callback({ error: 'Insira os dados corretamente' });
+    return {error: 'Insira os dados corretamente'};
+
     }else if(!nascimento){
       nascimento = "";
     }
+
     let conn
+
     try{
       conn = await connection()
+
       const insert = await conn.execute(
         `INSERT INTO users (email,usuario,senha,nome,nascimento,cpf) VALUES (?, ?, ?, ?, ?, ?)`,
         [email, usuario, senha, nome, nascimento, cpf]
       );
-      callback({message:'Usuario cadastrado com sucesso'});
+
+      return {message:'Usuario cadastrado com sucesso'};
+
     }catch(error){
       console.error(error);
-      callback({message:'Erro ao cadastrar usuário'});
+
+      return {error:'Erro ao cadastrar usuário'};
+
     }finally{
       if(conn){
         conn.end();

@@ -10,12 +10,15 @@
   ],
   "license": "ISC",
   "author": "Isaías Cireli Mezzari",
-  "type": "commonjs",
-  "main": "app.ts",
+  "type": "module",
+  "main": "dist/app.ts",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ts-node app.ts",
-    "dev": "nodemon app.ts"
+    "watch": "tsc --watch",
+    "start": "ts-node src/app.ts",        
+    "serve": "nodemon dist/app.js",      
+    "dev": "concurrently \"npm run watch\" \"npm run serve\""
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -28,6 +31,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.0",
+    "concurrently": "^9.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
