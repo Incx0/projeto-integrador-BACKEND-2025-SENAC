@@ -4,12 +4,12 @@ import dbMysql from "../database/dbMysql";
 const connection = async () => dbMysql.connect()
 
 const userService = {
-  getAllUsers: async () => {
+  getAllUsersService: async () => {
     const conn = await connection();
     const [rows] = await conn.execute('SELECT * FROM users');
     return rows;
   },
-  getUser: async (paciente: any) => {
+  getUserService: async (paciente: any) => {
     let {usuario, email, senha} = paciente;
     if(
       ((email == undefined || email == "") && (usuario == undefined || usuario == "")) || 
@@ -34,6 +34,30 @@ const userService = {
     );
     console.log(row);
     return row;
+  },
+  addUserService: async (user:any, callback:any)=> {
+    let {email,usuario,senha,nome,nascimento,cpf} = user;
+    if (!email || !usuario || !senha || !nome || ! cpf) {
+    return callback({ error: 'Insira os dados corretamente' });
+    }else if(!nascimento){
+      nascimento = "";
+    }
+    let conn
+    try{
+      conn = await connection()
+      const insert = await conn.execute(
+        `INSERT INTO users (email,usuario,senha,nome,nascimento,cpf) VALUES (?, ?, ?, ?, ?, ?)`,
+        [email, usuario, senha, nome, nascimento, cpf]
+      );
+      callback({message:'Usuario cadastrado com sucesso'});
+    }catch(error){
+      console.error(error);
+      callback({message:'Erro ao cadastrar usuário'});
+    }finally{
+      if(conn){
+        conn.end();
+      }
+    }
   }
 };
 
