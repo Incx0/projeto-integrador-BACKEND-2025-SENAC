@@ -10,6 +10,7 @@ const userService = {
     },
     getUserService: async (paciente) => {
         let { usuario, email, senha } = paciente;
+        let token = email;
         if (((email == undefined || email == "") && (usuario == undefined || usuario == "")) ||
             ((email == undefined || email == "") && (senha == undefined || senha == "")) ||
             ((usuario == undefined || usuario == "") && (senha == undefined || senha == "")) ||

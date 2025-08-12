@@ -1,6 +1,8 @@
 //importando dbMysql(basicamente o db);
 import dbMysql from "../database/dbMysql.js";
 
+import crypto from "crypto";
+
 //nn apagar pelo amor de deus
 const connection = async () => dbMysql.connect()
 
@@ -12,6 +14,7 @@ const userService = {
   },
   getUserService: async (paciente: any) => {
     let {usuario, email, senha} = paciente;
+    let token = email;
     if(
       ((email == undefined || email == "") && (usuario == undefined || usuario == "")) || 
       ((email == undefined || email == "") && (senha == undefined || senha == "")) ||

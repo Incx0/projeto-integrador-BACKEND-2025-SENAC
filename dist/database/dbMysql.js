@@ -12,11 +12,11 @@ const dbMysql = {
     connect: async function () {
         try {
             const connection = await connectToDatabase();
-            console.log("Conectado ao banco :) ebaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            console.log("conexão com o bd concluída com êxito");
             return connection;
         }
         catch (error) {
-            console.error("Erro ao conectar ao banco de dados MySQL:", error);
+            console.error("erro ao conectar com o bd:", error);
             throw error;
         }
     }

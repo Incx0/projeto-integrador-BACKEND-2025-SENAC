@@ -5,6 +5,7 @@ import cors from 'cors';
 import dbMysql from './database/dbMysql.js';
 // Importando routes
 import userRoute from './routes/user.route.js';
+
 // Inicializando o "app"
 const app = express();
 // Porta do servidor
