@@ -5,6 +5,7 @@ import cors from 'cors';
 import dbMysql from './database/dbMysql.js';
 // Importando routes
 import userRoute from './routes/user.route.js';
+import authRoute from './routes/auth.route.js';
 // Inicializando o "app"
 const app = express();
 // Porta do servidor
@@ -20,6 +21,7 @@ app.use(cors({
 }));
 // Routes
 app.use("/user", userRoute);
+app.use("/auth", authRoute);
 // Iniciando server
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);

@@ -4,7 +4,7 @@ async function connectToDatabase() {
         host: 'localhost',
         user: 'root',
         password: '',
-        database: 'teste_projeto_integrador2025'
+        database: 'pi_2025'
     });
     return connection;
 }

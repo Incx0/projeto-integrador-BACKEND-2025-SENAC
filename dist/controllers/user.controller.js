@@ -17,21 +17,6 @@ const userController = {
             res.status(500).json({ error: 'Erro interno do server' });
         }
     },
-    getUser: async (req, res) => {
-        try {
-            const user = await userService.getUserService(req.body);
-            res.json(user);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                console.error('Usuário não encontrado: ', error.message);
-            }
-            else {
-                console.error('Erro desconhecido: ', error);
-            }
-            res.status(500).json({ error: 'Erro interno do server' });
-        }
-    },
     addUser: async (req, res) => {
         try {
             const result = await userService.addUserService(req.body);

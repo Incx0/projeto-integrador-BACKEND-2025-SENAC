@@ -1,8 +1,6 @@
 //importando dbMysql(basicamente o db);
 import dbMysql from "../database/dbMysql.js";
 
-import crypto from "crypto";
-
 //nn apagar pelo amor de deus
 const connection = async () => dbMysql.connect()
 
