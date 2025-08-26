@@ -6,4 +6,5 @@ const router = Router();
 
 router.get("/", userController.getAllUsers);
 router.post("/add-user", userController.addUser);
+router.post("/update-user", userController.updateUser);
 export default router;

@@ -1,7 +1,7 @@
 //importando dbMysql(basicamente o db);
 import dbMysql from "../database/dbMysql.js";
 
-//nn apagar pelo amor de deus
+//faz a conexão com o banco de dados
 const connection = async () => dbMysql.connect()
 
 const userService = {
@@ -61,6 +61,56 @@ const userService = {
       console.error(error);
 
       return {error:'Erro ao cadastrar usuário', err};
+
+    }finally{
+      if(conn){
+        conn.end();
+      }
+    }
+  },
+  updateUserService: async (user:any)=> {
+    let {cpf, email, senha, nome, nascimento}:any = user;
+
+    
+    let conn
+    
+    try{
+      conn = await connection()
+      
+      if(!cpf || cpf.length === 0) return {error:'não foi informado o usuário a ser alterado'};
+
+      if (email) {
+        const updateEmail = await conn.execute(
+          `UPDATE users SET email = ? WHERE cpf = ?`,
+          [email, cpf]
+        );
+      }
+      if (senha) {
+        const updateSenha = await conn.execute(
+          `UPDATE users SET senha = ? WHERE cpf = ?`,
+          [senha, cpf]
+        );
+      }
+      if (nome) {
+        const updateNome = await conn.execute(
+          `UPDATE users SET nome = ? WHERE cpf = ?`,
+          [nome, cpf]
+        );
+      }
+      if (nascimento) {
+        const updateNascimento = await conn.execute(
+          `UPDATE users SET nascimento = ? WHERE cpf = ?`,
+          [nascimento, cpf]
+        );
+      }
+
+      return {message:'Usuario atualizado com sucesso'};
+
+    }catch(error){
+      const err = error;
+      console.error(error);
+
+      return {error:'Erro ao atualizar usuário', err};
 
     }finally{
       if(conn){
