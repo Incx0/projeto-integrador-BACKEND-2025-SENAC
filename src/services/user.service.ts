@@ -22,6 +22,33 @@ const userService = {
     try{
       conn = await connection()
 
+      const [rowsUser]: any = await conn.execute(
+        `SELECT email, usuario FROM users WHERE usuario = ?`,
+        [usuario]
+      );
+      const [rowsEmail]: any = await conn.execute(
+        `SELECT email, usuario FROM users WHERE email = ?`,
+        [email]
+      );
+      const [rowsCPF]: any = await conn.execute(
+        `SELECT email, usuario FROM users WHERE cpf = ?`,
+        [cpf]
+      );
+      
+      const hasUser = rowsUser.length > 0;
+      const hasEmail = rowsEmail.length > 0;
+      const hasCPF = rowsCPF.length > 0;
+
+      if (hasUser || hasEmail || hasCPF) {
+        let msg = 'Já existe um usuário com este';
+
+        if (hasUser) msg += ' nome de usuário';
+        if (hasEmail) msg += ' email';
+        if (hasCPF) msg += ' CPF';
+
+        return { error: msg.trim() };
+      }
+
       const insert = await conn.execute(
         `INSERT INTO users (email,usuario,senha,nome,nascimento,cpf) VALUES (?, ?, ?, ?, ?, ?)`,
         [email, usuario, senha, nome, nascimento, cpf]
