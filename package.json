@@ -16,21 +16,25 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc --watch",
-    "start": "ts-node dist/app.js",        
-    "serve": "nodemon dist/app.js",      
+    "start": "ts-node dist/app.js",
+    "serve": "nodemon dist/app.js",
     "dev": "concurrently \"npm run watch\" \"npm run serve\""
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "mysql2": "^3.14.3",
+    "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
     "npm": "^11.5.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.0",
+    "@types/nodemailer": "^7.0.1",
     "concurrently": "^9.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"

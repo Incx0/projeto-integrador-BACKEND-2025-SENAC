@@ -6,6 +6,8 @@ import dbMysql from './database/dbMysql.js';
 // Importando routes
 import userRoute from './routes/user.route.js';
 import authRoute from './routes/auth.route.js';
+import dotenv from "dotenv";
+dotenv.config();
 // Inicializando o "app"
 const app = express();
 // Porta do servidor

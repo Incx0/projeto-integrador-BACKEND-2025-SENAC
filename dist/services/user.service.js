@@ -1,5 +1,6 @@
-//importando dbMysql(basicamente o db);
 import dbMysql from "../database/dbMysql.js";
+import { sendMail } from "../middlewares/email.middleware.js";
+import crypto from "crypto";
 //faz a conexão com o banco de dados
 const connection = async () => dbMysql.connect();
 const userService = {
@@ -32,18 +33,22 @@ const userService = {
                     msg += ' CPF';
                 return { error: msg.trim() };
             }
-            const insert = await conn.execute(`INSERT INTO users (email,usuario,senha,nome,nascimento,cpf) VALUES (?, ?, ?, ?, ?, ?)`, [email, usuario, senha, nome, nascimento, cpf]);
+            // --- Correção: evitar undefined nos parâmetros ---
+            const [result] = await conn.execute(`INSERT INTO users (email, usuario, senha, nome, nascimento, cpf) VALUES (?, ?, ?, ?, ?, ?)`, [email, usuario, senha, nome, nascimento, cpf]);
+            const userId = result.insertId;
+            const verifyCode = crypto.randomBytes(4).toString("hex");
+            await conn.execute(`INSERT INTO \`verify_codes\` (user_id, codigo) VALUES (?, ?)`, [userId, verifyCode]);
+            console.log(verifyCode);
+            await sendMail(email, "Bem-vindo 🚀", `Olá ${nome}, seu usuário foi criado com sucesso! valide a sua conta`, `<h3>Seu código de verificação se encontra abaixo:</h3></br><h2 style="padding: 20px; border-radius: 5px; background-color: aqua; width: 100px; text-align: center;">${verifyCode}</h2>`);
             return { message: 'Usuario cadastrado com sucesso' };
         }
         catch (error) {
-            const err = error;
             console.error(error);
-            return { error: 'Erro ao cadastrar usuário', err };
+            return { error: 'Erro ao cadastrar usuário', err: error };
         }
         finally {
-            if (conn) {
+            if (conn)
                 conn.end();
-            }
         }
     },
     updateUserService: async (user) => {
@@ -53,6 +58,7 @@ const userService = {
             conn = await connection();
             if (!cpf || cpf.length === 0)
                 return { error: 'não foi informado o usuário a ser alterado' };
+            '';
             if (email) {
                 const updateEmail = await conn.execute(`UPDATE users SET email = ? WHERE cpf = ?`, [email, cpf]);
             }
