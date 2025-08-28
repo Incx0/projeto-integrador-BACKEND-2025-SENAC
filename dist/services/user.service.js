@@ -1,5 +1,5 @@
 import dbMysql from "../database/dbMysql.js";
-import { sendMail } from "../middlewares/email.middleware.js";
+import send from "./send-email.service.js";
 import crypto from "crypto";
 //faz a conexão com o banco de dados
 const connection = async () => dbMysql.connect();
@@ -39,7 +39,7 @@ const userService = {
             const verifyCode = crypto.randomBytes(4).toString("hex");
             await conn.execute(`INSERT INTO \`verify_codes\` (user_id, codigo) VALUES (?, ?)`, [userId, verifyCode]);
             console.log(verifyCode);
-            await sendMail(email, "Bem-vindo 🚀", `Olá ${nome}, seu usuário foi criado com sucesso! valide a sua conta`, `<h3>Seu código de verificação se encontra abaixo:</h3></br><h2 style="padding: 20px; border-radius: 5px; background-color: aqua; width: 100px; text-align: center;">${verifyCode}</h2>`);
+            await send.sendEmailVerifyAccountService(email, nome, verifyCode);
             return { message: 'Usuario cadastrado com sucesso' };
         }
         catch (error) {

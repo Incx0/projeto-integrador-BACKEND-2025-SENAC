@@ -4,7 +4,7 @@ import dbMysql from "../database/dbMysql.js";
 
 import { ResultSetHeader } from "mysql2/promise";
 
-import { sendMail } from "../middlewares/email.middleware.js";
+import  send  from "./send-email.service.js"
 
 import crypto, { randomBytes } from "crypto";
 
@@ -73,12 +73,7 @@ const userService = {
   
       console.log(verifyCode);
   
-      await sendMail(
-        email,
-        "Bem-vindo 🚀",
-        `Olá ${nome}, seu usuário foi criado com sucesso! valide a sua conta`,
-        `<h3>Seu código de verificação se encontra abaixo:</h3></br><h2 style="padding: 20px; border-radius: 5px; background-color: aqua; width: 100px; text-align: center;">${verifyCode}</h2>`,
-      );
+      await send.sendEmailVerifyAccountService(email, nome, verifyCode);
   
       return {message:'Usuario cadastrado com sucesso'};
   
@@ -97,7 +92,7 @@ const userService = {
     let {cpf, email, senha, nome, nascimento}:any = user;
 
     
-    let conn
+    let conn;
     
     try{
       conn = await connection()
@@ -130,6 +125,48 @@ const userService = {
       }
 
       return {message:'Usuario atualizado com sucesso'};
+
+    }catch(error){
+      const err = error;
+      console.error(error);
+
+      return {error:'Erro ao atualizar usuário', err};
+
+    }finally{
+      if(conn){
+        conn.end();
+      }
+    }
+  },
+
+  recuperarSenhaService: async (user:any)=>{
+    let {email} = user;
+
+    
+    let conn;
+    
+    try{
+      conn = await connection()
+      
+      if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};''
+
+      const [rowsEmail]:any = await conn.execute(
+        `SELECT email, cpf FROM users WHERE email = ?`,
+        [email]
+      );
+
+        let {userEmail, userCpf} = rowsEmail;
+
+      if (!rowsEmail || rowsEmail.length === 0) {
+        return {error:'não há usuário com este email'};
+      }
+
+      const updateEmail = await conn.execute(
+        `UPDATE users SET email = ? WHERE cpf = ?`,
+        [userEmail, userCpf]
+      );
+
+      return {message:'senha do usuario atualizada com sucesso'};
 
     }catch(error){
       const err = error;
