@@ -138,7 +138,7 @@ const userService = {
     }
   },
 
-  recuperarSenhaService: async (user:any)=>{
+  alterarSenhaService: async (user:any)=>{
     let {email, senhaNova} = user;
 
     

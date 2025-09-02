@@ -53,9 +53,9 @@ const userController = {
         }
 
     },
-    recuperarSenha: async(req: Request, res: Response) =>{
+    alterarSenha: async(req: Request, res: Response) =>{
         try{
-            const result = await userService.recuperarSenhaService(req.body);
+            const result = await userService.alterarSenhaService(req.body);
 
             if(result.error){
                 return res.status(400).json(result);
