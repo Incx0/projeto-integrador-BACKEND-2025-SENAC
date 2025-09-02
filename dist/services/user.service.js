@@ -33,7 +33,6 @@ const userService = {
                     msg += ' CPF';
                 return { error: msg.trim() };
             }
-            // --- Correção: evitar undefined nos parâmetros ---
             const [result] = await conn.execute(`INSERT INTO users (email, usuario, senha, nome, nascimento, cpf) VALUES (?, ?, ?, ?, ?, ?)`, [email, usuario, senha, nome, nascimento, cpf]);
             const userId = result.insertId;
             const verifyCode = crypto.randomBytes(4).toString("hex");
@@ -72,6 +71,32 @@ const userService = {
                 const updateNascimento = await conn.execute(`UPDATE users SET nascimento = ? WHERE cpf = ?`, [nascimento, cpf]);
             }
             return { message: 'Usuario atualizado com sucesso' };
+        }
+        catch (error) {
+            const err = error;
+            console.error(error);
+            return { error: 'Erro ao atualizar usuário', err };
+        }
+        finally {
+            if (conn) {
+                conn.end();
+            }
+        }
+    },
+    recuperarSenhaService: async (user) => {
+        let { email, senhaNova } = user;
+        let conn;
+        try {
+            conn = await connection();
+            if (!email || email.length === 0)
+                return { error: 'não foi informado o usuário a ser alterado' };
+            const [rowsEmail] = await conn.execute(`SELECT cpf FROM users WHERE email = ?`, [email]);
+            let { cpf } = rowsEmail[0];
+            if (!rowsEmail || rowsEmail.length === 0) {
+                return { error: 'não há usuário com este email' };
+            }
+            const updateEmail = await conn.execute(`UPDATE users SET senha = ? WHERE cpf = ?`, [senhaNova, cpf]);
+            return { message: 'senha do usuario atualizada com sucesso' };
         }
         catch (error) {
             const err = error;

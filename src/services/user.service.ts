@@ -56,7 +56,6 @@ const userService = {
         return { error: msg.trim() };
       }
   
-      // --- Correção: evitar undefined nos parâmetros ---
       const [result] = await conn.execute<ResultSetHeader>(
         `INSERT INTO users (email, usuario, senha, nome, nascimento, cpf) VALUES (?, ?, ?, ?, ?, ?)`,
         [email, usuario, senha, nome, nascimento, cpf]
@@ -140,7 +139,7 @@ const userService = {
   },
 
   recuperarSenhaService: async (user:any)=>{
-    let {email} = user;
+    let {email, senhaNova} = user;
 
     
     let conn;
@@ -148,22 +147,22 @@ const userService = {
     try{
       conn = await connection()
       
-      if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};''
+      if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};
 
       const [rowsEmail]:any = await conn.execute(
-        `SELECT email, cpf FROM users WHERE email = ?`,
+        `SELECT cpf FROM users WHERE email = ?`,
         [email]
       );
 
-        let {userEmail, userCpf} = rowsEmail;
+      let {cpf} = rowsEmail[0];
 
       if (!rowsEmail || rowsEmail.length === 0) {
         return {error:'não há usuário com este email'};
       }
 
       const updateEmail = await conn.execute(
-        `UPDATE users SET email = ? WHERE cpf = ?`,
-        [userEmail, userCpf]
+        `UPDATE users SET senha = ? WHERE cpf = ?`,
+        [senhaNova, cpf]
       );
 
       return {message:'senha do usuario atualizada com sucesso'};

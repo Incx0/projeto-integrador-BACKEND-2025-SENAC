@@ -5,7 +5,7 @@ const connection = async () => dbMysql.connect();
 export class AuthService {
     async login(usuarioOuEmail, senha) {
         const conn = await connection();
-        const [rows] = await conn.execute(`SELECT id, usuario, email, senha, cpf, nascimento, nome 
+        const [rows] = await conn.execute(`SELECT id, cpf
        FROM users 
        WHERE (usuario = ? OR email = ?) AND senha = ?`, [usuarioOuEmail, usuarioOuEmail, senha]);
         if (!rows || rows.length === 0) {
@@ -16,6 +16,7 @@ export class AuthService {
         const expiracao = new Date();
         expiracao.setHours(expiracao.getHours() + 8);
         await conn.execute(`INSERT INTO sessoes (user_id, token, expiracao) VALUES (?, ?, ?)`, [user.id, token, expiracao]);
+        const updateEmail = await conn.execute(`UPDATE users SET is_verified = 1 WHERE cpf = ?`, [user.cpf]);
         return { token, user };
     }
     async logout(token) {

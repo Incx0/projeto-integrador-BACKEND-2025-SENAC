@@ -9,7 +9,7 @@ export class AuthService {
     const conn = await connection();
 
     const [rows]: any = await conn.execute(
-      `SELECT id, usuario, email, senha, cpf, nascimento, nome 
+      `SELECT id, cpf
        FROM users 
        WHERE (usuario = ? OR email = ?) AND senha = ?`, 
       [usuarioOuEmail, usuarioOuEmail, senha]
@@ -28,6 +28,11 @@ export class AuthService {
     await conn.execute(
       `INSERT INTO sessoes (user_id, token, expiracao) VALUES (?, ?, ?)`,
       [user.id, token, expiracao]
+    );
+
+    const updateEmail = await conn.execute(
+      `UPDATE users SET is_verified = 1 WHERE cpf = ?`,
+      [user.cpf]
     );
 
     return { token, user };
