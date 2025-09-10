@@ -6,5 +6,6 @@ const router = Router();
 router.get("/", userController.getAllUsers);
 router.post("/add-user", userController.addUser);
 router.post("/update-user", userController.updateUser);
-router.post("/alterar-senha", userController.recuperarSenha);
+router.post("/alterar-senha", userController.alterarSenha);
+router.post("/recuperar-senha", userController.recuperarSenha);
 export default router;

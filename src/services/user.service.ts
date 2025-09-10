@@ -138,6 +138,48 @@ const userService = {
     }
   },
 
+  recuperarSenhaService: async (email:any)=>{
+
+    
+    let conn;
+    
+    try{
+      conn = await connection()
+      
+      if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};
+
+      const [rowsEmail]:any = await conn.execute(
+        `SELECT cpf, nome FROM users WHERE email = ?`,
+        [email]
+      );
+
+      let {cpf, nome} = rowsEmail[0];
+
+      if (!rowsEmail || rowsEmail.length === 0) {
+        return null;
+      }
+
+      const recupCode = crypto.randomBytes(4).toString("hex");
+
+      console.log(recupCode);
+  
+      await send.sendEmailVerifyAccountService(email, nome, recupCode);
+
+      return {message:'email enviado'};
+
+    }catch(error){
+      const err = error;
+      console.error(error);
+
+      return {error:'Erro ao atualizar usuário', err};
+
+    }finally{
+      if(conn){
+        conn.end();
+      }
+    }
+  },
+
   alterarSenhaService: async (user:any)=>{
     let {email, senhaNova} = user;
 

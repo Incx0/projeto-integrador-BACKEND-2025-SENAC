@@ -6,6 +6,7 @@ import dbMysql from './database/dbMysql.js';
 // Importando routes
 import userRoute from './routes/user.route.js';
 import authRoute from './routes/auth.route.js';
+import hospitalRoute from './routes/hospital.route.js';
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -30,6 +31,7 @@ app.use(cors({
 // Routes
 app.use("/user", userRoute);
 app.use("/auth", authRoute);
+app.use("/hospital", hospitalRoute);
 
 // Iniciando server
 app.listen(port, () => {

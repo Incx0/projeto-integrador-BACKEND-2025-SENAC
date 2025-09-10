@@ -1,15 +1,15 @@
 //importsss
-import userService from "../services/user.service.js";
+import hospitalService from "../services/hospital.service.js";
 const userController = {
     //métodos do controller de user devem ser adicionados aqui
-    getAllUsers: async (req, res) => {
+    getAllhospitais: async (req, res) => {
         try {
-            const users = await userService.getAllUsersService();
-            res.json(users);
+            const hospitais = await hospitalService.getAllHospitaisService();
+            res.json(hospitais);
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao buscar usuários: ', error.message);
+                console.error('Erro ao buscar hospitais: ', error.message);
             }
             else {
                 console.error('Erro desconhecido: ', error);
@@ -17,9 +17,24 @@ const userController = {
             res.status(500).json({ error: 'Erro interno do server' });
         }
     },
-    addUser: async (req, res) => {
+    getHospital: async (req, res) => {
         try {
-            const result = await userService.addUserService(req.body);
+            const hospital = await hospitalService.getHospitalService(req.body.id);
+            res.json(hospital);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                console.error('Erro ao buscar hospital: ', error.message);
+            }
+            else {
+                console.error('Erro desconhecido: ', error);
+            }
+            res.status(500).json({ error: 'Erro interno do server' });
+        }
+    },
+    addHospital: async (req, res) => {
+        try {
+            const result = await hospitalService.addHospitalService(req.body);
             if (result.error) {
                 return res.status(400).json(result);
             }
@@ -27,7 +42,7 @@ const userController = {
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao adicionar usuário: ', error.message);
+                console.error('Erro ao adicionar hospital: ', error.message);
             }
             else {
                 console.error('Erro desconhecido: ', error);
@@ -35,9 +50,9 @@ const userController = {
             res.status(500).json({ error: 'Erro interno do server' });
         }
     },
-    updateUser: async (req, res) => {
+    updateHospital: async (req, res) => {
         try {
-            const result = await userService.updateUserService(req.body);
+            const result = await hospitalService.updateHospitalService(req.body);
             if (result.error) {
                 return res.status(400).json(result);
             }
@@ -45,7 +60,7 @@ const userController = {
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao atualizar usuário: ', error.message);
+                console.error('Erro ao atualizar hospital: ', error.message);
             }
             else {
                 console.error('Erro desconhecido: ', error);
@@ -53,9 +68,9 @@ const userController = {
             res.status(500).json({ error: 'Erro interno do server' });
         }
     },
-    alterarSenha: async (req, res) => {
+    deleteHospital: async (req, res) => {
         try {
-            const result = await userService.alterarSenhaService(req.body);
+            const result = await hospitalService.deleteHospitalService(req.body.id);
             if (result.error) {
                 return res.status(400).json(result);
             }
@@ -63,28 +78,7 @@ const userController = {
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao recuperar senha: ', error.message);
-            }
-            else {
-                console.error('Erro desconhecido: ', error);
-            }
-            res.status(500).json({ error: 'Erro interno do server' });
-        }
-    },
-    recuperarSenha: async (req, res) => {
-        try {
-            const { email } = req.body;
-            const result = await userService.recuperarSenhaService(email);
-            const message = { message: 'caso exista, email enviado' };
-            if (!result)
-                return res.status(400).json(message);
-            if (result.error)
-                return res.status(400).json(message);
-            res.status(500).json(message);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                console.error('Erro ao recuperar senha: ', error.message);
+                console.error('Erro ao deletar hospital: ', error.message);
             }
             else {
                 console.error('Erro desconhecido: ', error);
