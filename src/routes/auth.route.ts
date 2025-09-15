@@ -5,5 +5,6 @@ const router = Router();
 
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
+router.post("/validar-token", AuthController.logout);
 
 export default router;

@@ -163,7 +163,7 @@ const userService = {
 
       console.log(recupCode);
   
-      await send.sendEmailVerifyAccountService(email, nome, recupCode);
+      await send.sendRecupPasswordEmailService(email, nome, recupCode);
 
       return {message:'email enviado'};
 

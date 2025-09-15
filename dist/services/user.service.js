@@ -96,7 +96,7 @@ const userService = {
             }
             const recupCode = crypto.randomBytes(4).toString("hex");
             console.log(recupCode);
-            await send.sendEmailVerifyAccountService(email, nome, recupCode);
+            await send.sendRecupPasswordEmailService(email, nome, recupCode);
             return { message: 'email enviado' };
         }
         catch (error) {
