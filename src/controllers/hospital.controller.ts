@@ -30,41 +30,59 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
     },
-    addHospital: async(req: Request, res: Response) =>{
-        try{
-            const result = await hospitalService.addHospitalService(req.body);
-
-            if(result.error){
+    addHospital: async (req: Request, res: Response) => {
+        //nn sei como a foto ta pegando, mas nn mexe
+        try {
+            const { nome, lati, long, uf, cidade, logradouro, bairro } = req.body;
+            const foto = req.file ? req.file.buffer : null;
+      
+            const result = await hospitalService.addHospitalService({
+                nome,
+                lati,
+                long,
+                uf,
+                cidade,
+                logradouro,
+                bairro,
+                foto
+            });
+      
+            if (result.error) {
                 return res.status(400).json(result);
             }
-            res.json(result)
-        }catch(error){
-            if(error instanceof Error){
-                console.error('Erro ao adicionar hospital: ', error.message);
-            }else{
-                console.error('Erro desconhecido: ', error);
+      
+            res.json(result);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Erro ao adicionar hospital: ", error.message);
+            } else {
+                console.error("Erro desconhecido: ", error);
             }
-            res.status(500).json({error:'Erro interno do server'});
+            res.status(500).json({ error: "Erro interno do server" });
         }
-
     },
-    updateHospital: async(req: Request, res: Response) =>{
-        try{
-            const result = await hospitalService.updateHospitalService(req.body);
-
-            if(result.error){
+    updateHospital: async (req: Request, res: Response) => {
+        try {
+            const foto = req.file ? req.file.buffer : null;
+      
+            const result = await hospitalService.updateHospitalService({
+                ...req.body,
+                foto
+            });
+      
+            if (result.error) {
                 return res.status(400).json(result);
             }
-            res.json(result)
-        }catch(error){
-            if(error instanceof Error){
-                console.error('Erro ao atualizar hospital: ', error.message);
-            }else{
-                console.error('Erro desconhecido: ', error);
+      
+            res.json(result);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Erro ao atualizar hospital: ", error.message);
+            } else {
+                console.error("Erro desconhecido: ", error);
             }
-            res.status(500).json({error:'Erro interno do server'});
+            res.status(500).json({ error: "Erro interno do server" });
         }
-
     },
     deleteHospital: async(req: Request, res: Response) =>{
         try{

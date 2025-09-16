@@ -24,7 +24,7 @@ const userController = {
             if(result.error){
                 return res.status(400).json(result);
             }
-            res.json(result)
+            res.status(201).json(result)
         }catch(error){
             if(error instanceof Error){
                 console.error('Erro ao adicionar usuário: ', error.message);
@@ -81,7 +81,7 @@ const userController = {
             if(result.error)return res.status(400).json(message);
             
 
-            res.status(500).json(message);
+            res.status(200).json(message);
         }catch(error){
             if(error instanceof Error){
                 console.error('Erro ao recuperar senha: ', error.message);

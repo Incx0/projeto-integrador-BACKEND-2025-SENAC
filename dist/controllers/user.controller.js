@@ -23,7 +23,7 @@ const userController = {
             if (result.error) {
                 return res.status(400).json(result);
             }
-            res.json(result);
+            res.status(201).json(result);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -80,7 +80,7 @@ const userController = {
                 return res.status(400).json(message);
             if (result.error)
                 return res.status(400).json(message);
-            res.status(500).json(message);
+            res.status(200).json(message);
         }
         catch (error) {
             if (error instanceof Error) {
