@@ -9,18 +9,18 @@ const hospitalService = {
     },
     getHospitalService: async (id) => {
         if (id == null)
-            throw new Error("ID inválido");
+            throw new Error("id inválido");
         const hospitalId = Number(id);
         if (isNaN(hospitalId))
-            throw new Error("ID inválido");
+            throw new Error("id inválido");
         const conn = await connection();
         const [rows] = await conn.execute(`SELECT * FROM hospitais WHERE id = ?`, [hospitalId]);
         return rows;
     },
-    addHospitalService: async (user) => {
-        let { nome, lati, long, uf, cidade, logradouro, bairro } = user;
-        if (!nome || !lati || !long || !uf || !cidade || !logradouro || !bairro) {
-            return { error: 'Insira os dados corretamente' };
+    addHospitalService: async (hospital) => {
+        let { nome, lati, long, uf, cidade, logradouro, bairro, foto } = hospital;
+        if (!nome || !lati || !long || !uf || !cidade || !logradouro || !bairro || !foto) {
+            return { error: "Insira os dados corretamente" };
         }
         let conn;
         try {
@@ -32,21 +32,22 @@ const hospitalService = {
             const hasLong = rowsLong.length > 0;
             const hasLogradouro = rowsLogradouro.length > 0;
             if (hasLati || hasLong || hasLogradouro) {
-                let msg = 'Já existe um hospital com este(a)';
+                let msg = "Já existe um hospital com este(a)";
                 if (hasLati)
-                    msg += ' latitude';
+                    msg += " latitude";
                 if (hasLong)
-                    msg += ' longitude';
+                    msg += " longitude";
                 if (hasLogradouro)
-                    msg += ' logradouro';
+                    msg += " logradouro";
                 return { error: msg.trim() };
             }
-            const [result] = await conn.execute(`INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)`, [nome, lati, long, uf, cidade, logradouro, bairro]);
-            return { message: 'Hospital cadastrado com sucesso' };
+            await conn.execute(`INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nome, lati, long, uf, cidade, logradouro, bairro, foto]);
+            return { message: "Hospital cadastrado com sucesso" };
         }
         catch (error) {
             console.error(error);
-            return { error: 'Erro ao cadastrar hospital', err: error };
+            return { error: "Erro ao cadastrar hospital", err: error };
         }
         finally {
             if (conn)
@@ -54,51 +55,107 @@ const hospitalService = {
         }
     },
     updateHospitalService: async (hospital) => {
-        let { id, nome, lati, long, uf, cidade, logradouro, bairro, qtd_paciente, tempo_espera } = hospital;
+        let { id, nome, lati, long, uf, cidade, logradouro, bairro, qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, tempo_espera, foto, } = hospital;
+        if (!id)
+            return { error: "ID do hospital é obrigatório" };
         let conn;
         try {
             conn = await connection();
-            if (!id || id.length === 0)
-                return { error: 'não foi informado o hhospital a ser alterado' };
-            '';
-            if (lati) {
-                const updateLati = await conn.execute(`UPDATE hospitais SET lati = ? WHERE id = ?`, [lati, id]);
+            const calcularTempoFilaEspera = async (id) => {
+                try {
+                    const [rowsId] = await conn.execute(`SELECT qtd_pacientes_id, qtd_medicos_id FROM hospitais WHERE id = ?`, [id]);
+                    if (!rowsId || rowsId.length === 0) {
+                        throw new Error("Hospital não encontrado");
+                    }
+                    const { qtd_pacientes_id, qtd_medicos_id } = rowsId[0];
+                    const [rowsPulseiras] = await conn.execute(`SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE id = ?`, [qtd_pacientes_id]);
+                    if (!rowsPulseiras || rowsPulseiras.length === 0) {
+                        throw new Error("não há nenhum registro de paciente encontrado");
+                    }
+                    const { qtd_laranja: laranjas, qtd_amarelo: amarelos, qtd_verde: verdes, qtd_azul: azuis, } = rowsPulseiras[0];
+                    const [rowsMedicos] = await conn.execute(`SELECT qtd, qtd_livre FROM fila_espera WHERE id = ?`, [qtd_medicos_id]);
+                    if (!rowsMedicos || rowsMedicos.length === 0) {
+                        throw new Error("não há nenhum registro de medico");
+                    }
+                    let { qtd: qtdMedicos, qtd_livre: qtdMedicosLivre } = rowsMedicos[0];
+                    const divisor = qtdMedicosLivre > 0 ? qtdMedicosLivre : qtdMedicos;
+                    const media_atendimento_laranja = 10;
+                    const media_atendimento_amarelo = 60;
+                    const media_atendimento_verde = 120;
+                    const media_atendimento_azul = 240;
+                    const peso = {
+                        laranja: media_atendimento_laranja,
+                        amarelo: media_atendimento_amarelo,
+                        verde: media_atendimento_verde,
+                        azul: media_atendimento_azul,
+                    };
+                    const cargaTotal = (laranjas * peso.laranja) + (amarelos * peso.amarelo) + (verdes * peso.verde) + (azuis * peso.azul);
+                    if (peso.laranja === 0)
+                        cargaTotal * 0.5;
+                    if (peso.laranja === 0 && peso.amarelo === 0)
+                        cargaTotal * 0.25;
+                    const totalTempoEstimado = cargaTotal / divisor;
+                    await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`, [totalTempoEstimado, id]);
+                    console.log(totalTempoEstimado);
+                }
+                catch (error) {
+                    return { error: `Erro ao estimar o tempo de fila` };
+                }
+            };
+            if (lati !== undefined && lati !== null) {
+                await conn.execute(`UPDATE hospitais SET lati = ? WHERE id = ?`, [lati, id]);
             }
-            if (long) {
-                const updateLong = await conn.execute(`UPDATE hospitais SET longi = ? WHERE id = ?`, [long, id]);
+            if (long !== undefined && long !== null) {
+                await conn.execute(`UPDATE hospitais SET longi = ? WHERE id = ?`, [long, id]);
             }
-            if (nome) {
-                const updateNome = await conn.execute(`UPDATE hospitais SET nome = ? WHERE id = ?`, [nome, id]);
+            if (nome !== undefined && nome !== null) {
+                await conn.execute(`UPDATE hospitais SET nome = ? WHERE id = ?`, [nome, id]);
             }
-            if (uf) {
-                const updateUf = await conn.execute(`UPDATE hospitais SET uf = ? WHERE id = ?`, [uf, id]);
+            if (uf !== undefined && uf !== null) {
+                await conn.execute(`UPDATE hospitais SET uf = ? WHERE id = ?`, [uf, id]);
             }
-            if (cidade) {
-                const updateCidade = await conn.execute(`UPDATE hospitais SET cidade = ? WHERE id = ?`, [cidade, id]);
+            if (cidade !== undefined && cidade !== null) {
+                await conn.execute(`UPDATE hospitais SET cidade = ? WHERE id = ?`, [cidade, id]);
             }
-            if (logradouro) {
-                const updateLogradouro = await conn.execute(`UPDATE hospitais SET logradouro = ? WHERE id = ?`, [logradouro, id]);
+            if (logradouro !== undefined && logradouro !== null) {
+                await conn.execute(`UPDATE hospitais SET logradouro = ? WHERE id = ?`, [logradouro, id]);
             }
-            if (bairro) {
-                const updateBairro = await conn.execute(`UPDATE hospitais SET bairro = ? WHERE id = ?`, [bairro, id]);
+            if (bairro !== undefined && bairro !== null) {
+                await conn.execute(`UPDATE hospitais SET bairro = ? WHERE id = ?`, [bairro, id]);
             }
-            if (qtd_paciente) {
-                const updateQtdPaciente = await conn.execute(`UPDATE hospitais SET qtd_pacientes = ? WHERE id = ?`, [qtd_paciente, id]);
+            if (qtd_laranja !== undefined && qtd_laranja !== null) {
+                await conn.execute(`UPDATE hospitais SET qtd_laranja = ? WHERE id = ?`, [qtd_laranja, id]);
             }
-            if (tempo_espera) {
-                const updateFila_espera = await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`, [tempo_espera, id]);
+            if (qtd_amarelo !== undefined && qtd_amarelo !== null) {
+                await conn.execute(`UPDATE hospitais SET qtd_amarelo = ? WHERE id = ?`, [qtd_amarelo, id]);
             }
-            return { message: 'Hospital atualizado com sucesso' };
+            if (qtd_verde !== undefined && qtd_verde !== null) {
+                await conn.execute(`UPDATE hospitais SET qtd_verde = ? WHERE id = ?`, [qtd_verde, id]);
+            }
+            if (qtd_azul !== undefined && qtd_azul !== null) {
+                await conn.execute(`UPDATE hospitais SET qtd_azul = ? WHERE id = ?`, [qtd_azul, id]);
+            }
+            if (tempo_espera !== undefined && tempo_espera !== null) {
+                await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`, [tempo_espera, id]);
+            }
+            if (foto !== undefined && foto !== null) {
+                await conn.execute(`UPDATE hospitais SET foto = ? WHERE id = ?`, [foto, id]);
+            }
+            if ((qtd_azul !== undefined && qtd_azul !== null) ||
+                (qtd_verde !== undefined && qtd_verde !== null) ||
+                (qtd_amarelo !== undefined && qtd_amarelo !== null) ||
+                (qtd_laranja !== undefined && qtd_laranja !== null)) {
+                calcularTempoFilaEspera(id);
+            }
+            return { message: "Hospital atualizado com sucesso" };
         }
-        catch (error) {
-            const err = error;
-            console.error(error);
-            return { error: 'Erro ao atualizar hospital', err };
+        catch (err) {
+            console.error(err);
+            return { error: "Erro ao atualizar hospital", err };
         }
         finally {
-            if (conn) {
+            if (conn)
                 conn.end();
-            }
         }
     },
     deleteHospitalService: async (id) => {

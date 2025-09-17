@@ -4,10 +4,6 @@ import dbMysql from "../database/dbMysql.js";
 
 import { ResultSetHeader } from "mysql2/promise";
 
-import multer from "multer";
-
-const upload = multer();
-
 //faz a conexão com o banco de dados
 const connection = async () => dbMysql.connect()
 
@@ -91,7 +87,6 @@ const hospitalService = {
       cidade,
       logradouro,
       bairro,
-      qtd_vermelho,
       qtd_laranja,
       qtd_amarelo,
       qtd_verde,
@@ -107,12 +102,74 @@ const hospitalService = {
     try {
       conn = await connection();
 
-      const calcularTempoFilaEspera = async ()=>{
-        const [rows] = await conn.execute(`SELECT qtd_vermelho,qtd_laranja, qtd_amarelo, qtd_verde,qtd_azul FROM hospitais where id = ${id}`);
-        
-        let {vermelho,laranja,amarelo,verde,azul} = rows;
+      const calcularTempoFilaEspera = async (id: number) => {
+        try{
+          const [rowsId] = await conn.execute(
+            `SELECT qtd_pacientes_id, qtd_medicos_id FROM hospitais WHERE id = ?`,
+            [id]
+          );
+          
+          if (!rowsId || rowsId.length === 0) {
+            throw new Error("Hospital não encontrado");
+          }
 
-        let total_tempo = (vermelho)
+          const { qtd_pacientes_id, qtd_medicos_id} = rowsId[0]
+
+          const [rowsPulseiras] = await conn.execute(
+            `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE id = ?`,
+            [qtd_pacientes_id]
+          );
+
+          if (!rowsPulseiras || rowsPulseiras.length === 0) {
+            throw new Error("não há nenhum registro de paciente encontrado");
+          }
+
+          const {
+            qtd_laranja: laranjas,
+            qtd_amarelo: amarelos,
+            qtd_verde: verdes,
+            qtd_azul: azuis,
+          } = rowsPulseiras[0];
+        
+          const [rowsMedicos] = await conn.execute(
+            `SELECT qtd, qtd_livre FROM fila_espera WHERE id = ?`,
+            [qtd_medicos_id]
+          );
+
+          if (!rowsMedicos || rowsMedicos.length === 0) {
+            throw new Error("não há nenhum registro de medico");
+          }
+
+          let { qtd: qtdMedicos, qtd_livre: qtdMedicosLivre} = rowsMedicos[0]
+            
+          const divisor = qtdMedicosLivre > 0 ? qtdMedicosLivre : qtdMedicos;
+  
+          const media_atendimento_laranja = 10;
+          const media_atendimento_amarelo = 60;
+          const media_atendimento_verde = 120;
+          const media_atendimento_azul = 240;
+        
+          const peso = {
+            laranja: media_atendimento_laranja,
+            amarelo: media_atendimento_amarelo,
+            verde: media_atendimento_verde,
+            azul: media_atendimento_azul,
+          };
+        
+          const cargaTotal =
+          (laranjas * peso.laranja) + (amarelos * peso.amarelo) + (verdes * peso.verde) + (azuis * peso.azul);
+        
+          if(peso.laranja === 0) cargaTotal*0.5;
+          if(peso.laranja === 0 && peso.amarelo === 0) cargaTotal*0.25;
+  
+          const totalTempoEstimado = cargaTotal / divisor;
+  
+          await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`, [totalTempoEstimado, id]);
+          console.log(totalTempoEstimado)
+
+        }catch(error){
+          return {error:`Erro ao estimar o tempo de fila`}
+        }
       };
 
       if (lati !== undefined && lati !== null) {
@@ -149,11 +206,6 @@ const hospitalService = {
         await conn.execute(`UPDATE hospitais SET bairro = ? WHERE id = ?`,
         [bairro, id]);
       }
-  
-      if (qtd_vermelho !== undefined && qtd_vermelho !== null) {
-        await conn.execute(`UPDATE hospitais SET qtd_vermelho = ? WHERE id = ?`,
-        [qtd_vermelho, id]);
-      }
 
       if (qtd_laranja !== undefined && qtd_laranja !== null) {
         await conn.execute(`UPDATE hospitais SET qtd_laranja = ? WHERE id = ?`,
@@ -183,6 +235,14 @@ const hospitalService = {
       if (foto !== undefined && foto !== null) {
         await conn.execute(`UPDATE hospitais SET foto = ? WHERE id = ?`,
         [foto, id]);
+      }
+
+      if(
+      (qtd_azul !== undefined && qtd_azul !== null)||
+      (qtd_verde !== undefined && qtd_verde !== null)||
+      (qtd_amarelo !== undefined && qtd_amarelo !== null)||
+      (qtd_laranja !== undefined && qtd_laranja !== null)){
+        calcularTempoFilaEspera(id);
       }
   
       return { message: "Hospital atualizado com sucesso" };

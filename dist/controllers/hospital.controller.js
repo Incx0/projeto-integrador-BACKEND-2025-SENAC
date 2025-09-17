@@ -33,8 +33,20 @@ const userController = {
         }
     },
     addHospital: async (req, res) => {
+        //nn sei como a foto ta pegando, mas nn mexe
         try {
-            const result = await hospitalService.addHospitalService(req.body);
+            const { nome, lati, long, uf, cidade, logradouro, bairro } = req.body;
+            const foto = req.file ? req.file.buffer : null;
+            const result = await hospitalService.addHospitalService({
+                nome,
+                lati,
+                long,
+                uf,
+                cidade,
+                logradouro,
+                bairro,
+                foto
+            });
             if (result.error) {
                 return res.status(400).json(result);
             }
@@ -42,17 +54,21 @@ const userController = {
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao adicionar hospital: ', error.message);
+                console.error("Erro ao adicionar hospital: ", error.message);
             }
             else {
-                console.error('Erro desconhecido: ', error);
+                console.error("Erro desconhecido: ", error);
             }
-            res.status(500).json({ error: 'Erro interno do server' });
+            res.status(500).json({ error: "Erro interno do server" });
         }
     },
     updateHospital: async (req, res) => {
         try {
-            const result = await hospitalService.updateHospitalService(req.body);
+            const foto = req.file ? req.file.buffer : null;
+            const result = await hospitalService.updateHospitalService({
+                ...req.body,
+                foto
+            });
             if (result.error) {
                 return res.status(400).json(result);
             }
@@ -60,12 +76,12 @@ const userController = {
         }
         catch (error) {
             if (error instanceof Error) {
-                console.error('Erro ao atualizar hospital: ', error.message);
+                console.error("Erro ao atualizar hospital: ", error.message);
             }
             else {
-                console.error('Erro desconhecido: ', error);
+                console.error("Erro desconhecido: ", error);
             }
-            res.status(500).json({ error: 'Erro interno do server' });
+            res.status(500).json({ error: "Erro interno do server" });
         }
     },
     deleteHospital: async (req, res) => {

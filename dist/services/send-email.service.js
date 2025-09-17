@@ -78,7 +78,7 @@ const sendEmailService = {
                                             </div>
 
                                             <div style="text-align: center; margin: 30px 0;">
-                                                <a href="https://www.youtube.com/watch?v=xKdMUAr6_vQ" style="display: inline-block; background-color: #0e2b52; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(14, 43, 82, 0.2);">Redefinir Senha</a>
+                                                <a href="youtube.com" style="display: inline-block; background-color: #0e2b52; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(14, 43, 82, 0.2);">Redefinir Senha</a>
                                             </div>
 
                                             <p style="color: #666666; font-size: 15px; line-height: 1.6; text-align: center;">Não pediu uma nova senha? Você pode ignorar este e-mail.</p>

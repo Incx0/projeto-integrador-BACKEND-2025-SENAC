@@ -66,7 +66,7 @@ const userService = {
       const verifyCode = crypto.randomBytes(4).toString("hex");
   
       await conn.execute(
-        `INSERT INTO \`verify_codes\` (user_id, codigo) VALUES (?, ?)`,
+        `INSERT INTO \`codigos\` (user_id, codigo, tipo) VALUES (?, ?, "verificacao")`,
         [userId, verifyCode]
       );
   
@@ -154,6 +154,8 @@ const userService = {
       );
 
       let {cpf, nome} = rowsEmail[0];
+
+      console.log(cpf);
 
       if (!rowsEmail || rowsEmail.length === 0) {
         return null;

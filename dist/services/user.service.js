@@ -36,7 +36,7 @@ const userService = {
             const [result] = await conn.execute(`INSERT INTO users (email, usuario, senha, nome, nascimento, cpf) VALUES (?, ?, ?, ?, ?, ?)`, [email, usuario, senha, nome, nascimento, cpf]);
             const userId = result.insertId;
             const verifyCode = crypto.randomBytes(4).toString("hex");
-            await conn.execute(`INSERT INTO \`verify_codes\` (user_id, codigo) VALUES (?, ?)`, [userId, verifyCode]);
+            await conn.execute(`INSERT INTO \`codigos\` (user_id, codigo, tipo) VALUES (?, ?, "verificacao")`, [userId, verifyCode]);
             console.log(verifyCode);
             await send.sendEmailVerifyAccountService(email, nome, verifyCode);
             return { message: 'Usuario cadastrado com sucesso' };
@@ -91,6 +91,7 @@ const userService = {
                 return { error: 'não foi informado o usuário a ser alterado' };
             const [rowsEmail] = await conn.execute(`SELECT cpf, nome FROM users WHERE email = ?`, [email]);
             let { cpf, nome } = rowsEmail[0];
+            console.log(cpf);
             if (!rowsEmail || rowsEmail.length === 0) {
                 return null;
             }
