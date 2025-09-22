@@ -2,6 +2,8 @@
 import { log } from "console";
 import dbMysql from "../database/dbMysql.js";
 
+
+
 import { ResultSetHeader } from "mysql2/promise";
 
 //faz a conexão com o banco de dados
@@ -91,6 +93,8 @@ const hospitalService = {
       qtdd_amarelo,
       qtdd_verde,
       qtdd_azul,
+      qtdd_medico,
+      perc_medico_livre,
       tempo_espera,
       foto,
     } = hospital;
@@ -235,6 +239,16 @@ const hospitalService = {
       if (foto !== undefined && foto !== null) {
         await conn.execute(`UPDATE hospitais SET foto = ? WHERE id = ?`,
         [foto, id]);
+      }
+
+      if (qtdd_medico !== undefined && qtdd_medico !== null) {
+        await conn.execute(`UPDATE qtd_medicos SET qtd = ? WHERE hospitais_id = ?`,
+        [qtdd_medico, id]);
+      }
+
+      if (perc_medico_livre !== undefined && perc_medico_livre !== null) {
+        await conn.execute(`UPDATE qtd_medicos SET qtd_livre = ? WHERE hospitais_id = ?`,
+        [perc_medico_livre, id]);
       }
 
       if(
