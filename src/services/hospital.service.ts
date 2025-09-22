@@ -182,7 +182,7 @@ const hospitalService = {
   
           const totalTempoEstimado = cargaTotal / divisor;
   
-          await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE id = ?`, [totalTempoEstimado, qtd_pacientes_id]);
+          await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [totalTempoEstimado, id]);
           console.log(totalTempoEstimado)
 
         }catch(error){
@@ -226,27 +226,27 @@ const hospitalService = {
       }
 
       if (qtdd_laranja !== undefined && qtdd_laranja !== null) {
-        await conn.execute(`UPDATE hospitais SET qtd_laranja = ? WHERE id = ?`,
+        await conn.execute(`UPDATE fila_espera SET qtd_laranja = ? WHERE hospitais_id = ?`,
         [qtdd_laranja, id]);
       }
 
       if (qtdd_amarelo !== undefined && qtdd_amarelo !== null) {
-        await conn.execute(`UPDATE hospitais SET qtd_amarelo = ? WHERE id = ?`,
+        await conn.execute(`UPDATE fila_espera SET qtd_amarelo = ? WHERE hospitais_id = ?`,
         [qtdd_amarelo, id]);
       }
 
       if (qtdd_verde !== undefined && qtdd_verde !== null) {
-        await conn.execute(`UPDATE hospitais SET qtd_verde = ? WHERE id = ?`,
+        await conn.execute(`UPDATE fila_espera SET qtd_verde = ? WHERE hospitais_id = ?`,
         [qtdd_verde, id]);
       }
 
       if (qtdd_azul !== undefined && qtdd_azul !== null) {
-        await conn.execute(`UPDATE hospitais SET qtd_azul = ? WHERE id = ?`,
+        await conn.execute(`UPDATE fila_espera SET qtd_azul = ? WHERE hospitais_id = ?`,
         [qtdd_azul, id]);
       }
   
       if (tempo_espera !== undefined && tempo_espera !== null) {
-        await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`,
+        await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`,
         [tempo_espera, id]);
       }
   
