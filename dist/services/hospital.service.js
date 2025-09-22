@@ -4,7 +4,7 @@ const connection = async () => dbMysql.connect();
 const hospitalService = {
     getAllHospitaisService: async () => {
         const conn = await connection();
-        const [rows] = await conn.execute('SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b');
+        const [rows] = await conn.execute('SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a join fila_espera AS b where a.id = b.hospitais_id;');
         return rows;
     },
     getHospitalService: async (id) => {
@@ -14,7 +14,7 @@ const hospitalService = {
         if (isNaN(hospitalId))
             throw new Error("id inválido");
         const conn = await connection();
-        const [rows] = await conn.execute(`SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b WHERE ? = b.hospitais_id;`, [hospitalId]);
+        const [rows] = await conn.execute(`SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b WHERE a.id =? and b.hospitais_id = ?;`, [hospitalId, hospitalId]);
         return rows;
     },
     addHospitalService: async (hospital) => {
