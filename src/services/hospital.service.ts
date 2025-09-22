@@ -10,7 +10,7 @@ const connection = async () => dbMysql.connect()
 const hospitalService = {
   getAllHospitaisService: async () => {
     const conn = await connection();
-    const [rows] = await conn.execute('SELECT * FROM hospitais');
+    const [rows] = await conn.execute('SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b');
     return rows;
   },
   getHospitalService: async (id: number | string) => {
@@ -21,7 +21,7 @@ const hospitalService = {
   
     const conn = await connection();
     const [rows]: any = await conn.execute(
-      `SELECT * FROM hospitais WHERE id = ?`,
+      `SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b WHERE ? = b.hospitais_id;`,
       [hospitalId]
     );
     return rows;
@@ -87,10 +87,10 @@ const hospitalService = {
       cidade,
       logradouro,
       bairro,
-      qtd_laranja,
-      qtd_amarelo,
-      qtd_verde,
-      qtd_azul,
+      qtdd_laranja,
+      qtdd_amarelo,
+      qtdd_verde,
+      qtdd_azul,
       tempo_espera,
       foto,
     } = hospital;
@@ -132,7 +132,7 @@ const hospitalService = {
           } = rowsPulseiras[0];
         
           const [rowsMedicos] = await conn.execute(
-            `SELECT qtd, qtd_livre FROM fila_espera WHERE id = ?`,
+            `SELECT qtd, qtd_livre FROM qtd_medicos WHERE id = ?`,
             [qtd_medicos_id]
           );
 
@@ -164,7 +164,7 @@ const hospitalService = {
   
           const totalTempoEstimado = cargaTotal / divisor;
   
-          await conn.execute(`UPDATE hospitais SET tempo_espera = ? WHERE id = ?`, [totalTempoEstimado, id]);
+          await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE id = ?`, [totalTempoEstimado, qtd_pacientes_id]);
           console.log(totalTempoEstimado)
 
         }catch(error){
@@ -207,24 +207,24 @@ const hospitalService = {
         [bairro, id]);
       }
 
-      if (qtd_laranja !== undefined && qtd_laranja !== null) {
+      if (qtdd_laranja !== undefined && qtdd_laranja !== null) {
         await conn.execute(`UPDATE hospitais SET qtd_laranja = ? WHERE id = ?`,
-        [qtd_laranja, id]);
+        [qtdd_laranja, id]);
       }
 
-      if (qtd_amarelo !== undefined && qtd_amarelo !== null) {
+      if (qtdd_amarelo !== undefined && qtdd_amarelo !== null) {
         await conn.execute(`UPDATE hospitais SET qtd_amarelo = ? WHERE id = ?`,
-        [qtd_amarelo, id]);
+        [qtdd_amarelo, id]);
       }
 
-      if (qtd_verde !== undefined && qtd_verde !== null) {
+      if (qtdd_verde !== undefined && qtdd_verde !== null) {
         await conn.execute(`UPDATE hospitais SET qtd_verde = ? WHERE id = ?`,
-        [qtd_verde, id]);
+        [qtdd_verde, id]);
       }
 
-      if (qtd_azul !== undefined && qtd_azul !== null) {
+      if (qtdd_azul !== undefined && qtdd_azul !== null) {
         await conn.execute(`UPDATE hospitais SET qtd_azul = ? WHERE id = ?`,
-        [qtd_azul, id]);
+        [qtdd_azul, id]);
       }
   
       if (tempo_espera !== undefined && tempo_espera !== null) {
@@ -238,10 +238,10 @@ const hospitalService = {
       }
 
       if(
-      (qtd_azul !== undefined && qtd_azul !== null)||
-      (qtd_verde !== undefined && qtd_verde !== null)||
-      (qtd_amarelo !== undefined && qtd_amarelo !== null)||
-      (qtd_laranja !== undefined && qtd_laranja !== null)){
+      (qtdd_azul !== undefined && qtdd_azul !== null)||
+      (qtdd_verde !== undefined && qtdd_verde !== null)||
+      (qtdd_amarelo !== undefined && qtdd_amarelo !== null)||
+      (qtdd_laranja !== undefined && qtdd_laranja !== null)){
         calcularTempoFilaEspera(id);
       }
   
