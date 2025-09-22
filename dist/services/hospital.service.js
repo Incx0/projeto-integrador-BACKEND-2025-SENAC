@@ -41,8 +41,13 @@ const hospitalService = {
                     msg += " logradouro";
                 return { error: msg.trim() };
             }
-            await conn.execute(`INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
+            const [insertHospital] = await conn.execute(`INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nome, lati, long, uf, cidade, logradouro, bairro, foto]);
+            const hospitalId = insertHospital.insertId;
+            await conn.execute(`INSERT INTO qtd_medicos (qtd, qtd_livre, hospitais_id) 
+         VALUES (?, ?, ?)`, [2, 1.0, hospitalId]);
+            await conn.execute(`INSERT INTO fila_espera (qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, hospitais_id) 
+         VALUES (?, ?, ?)`, [0, 0, 0, 0, hospitalId]);
             return { message: "Hospital cadastrado com sucesso" };
         }
         catch (error) {
@@ -55,7 +60,7 @@ const hospitalService = {
         }
     },
     updateHospitalService: async (hospital) => {
-        let { id, nome, lati, long, uf, cidade, logradouro, bairro, qtdd_laranja, qtdd_amarelo, qtdd_verde, qtdd_azul, tempo_espera, foto, } = hospital;
+        let { id, nome, lati, long, uf, cidade, logradouro, bairro, qtdd_laranja, qtdd_amarelo, qtdd_verde, qtdd_azul, qtdd_medico, perc_medico_livre, tempo_espera, foto, } = hospital;
         if (!id)
             return { error: "ID do hospital é obrigatório" };
         let conn;
@@ -140,6 +145,12 @@ const hospitalService = {
             }
             if (foto !== undefined && foto !== null) {
                 await conn.execute(`UPDATE hospitais SET foto = ? WHERE id = ?`, [foto, id]);
+            }
+            if (qtdd_medico !== undefined && qtdd_medico !== null) {
+                await conn.execute(`UPDATE qtd_medicos SET qtd = ? WHERE hospitais_id = ?`, [qtdd_medico, id]);
+            }
+            if (perc_medico_livre !== undefined && perc_medico_livre !== null) {
+                await conn.execute(`UPDATE qtd_medicos SET qtd_livre = ? WHERE hospitais_id = ?`, [perc_medico_livre, id]);
             }
             if ((qtdd_azul !== undefined && qtdd_azul !== null) ||
                 (qtdd_verde !== undefined && qtdd_verde !== null) ||

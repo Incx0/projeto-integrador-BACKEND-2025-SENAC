@@ -65,10 +65,24 @@ const hospitalService = {
         return { error: msg.trim() };
       }
   
-      await conn.execute<ResultSetHeader>(
+      const [insertHospital] = await conn.execute<ResultSetHeader>(
         `INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [nome, lati, long, uf, cidade, logradouro, bairro, foto]
+      );
+
+      const hospitalId = insertHospital.insertId;
+
+      await conn.execute<ResultSetHeader>(
+        `INSERT INTO qtd_medicos (qtd, qtd_livre, hospitais_id) 
+         VALUES (?, ?, ?)`,
+        [2, 1.0, hospitalId]
+      );
+
+      await conn.execute<ResultSetHeader>(
+        `INSERT INTO fila_espera (qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, hospitais_id) 
+         VALUES (?, ?, ?)`,
+        [0, 0, 0, 0, hospitalId]
       );
   
       return { message: "Hospital cadastrado com sucesso" };
