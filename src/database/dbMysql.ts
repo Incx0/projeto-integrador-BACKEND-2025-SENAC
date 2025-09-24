@@ -1,3 +1,4 @@
+//slk nn vou documentar essa coisa nn
 import { Application } from "express";
 import mysql2 from "mysql2/promise";
 

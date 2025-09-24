@@ -1,9 +1,9 @@
-//importsss
+//import do service e express
 import userService from "../services/user.service.js";
 import { Request, Response } from "express";
 
 const userController = {
-    //métodos do controller de user devem ser adicionados aqui
+    //método de dar get em tds os usuários
     getAllUsers: async (req: Request, res: Response) => {
         try {
             const users = await userService.getAllUsersService();
@@ -17,6 +17,8 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
     },
+
+    //método de dar get em 1 usuário por id
     getUser: async (req: Request, res: Response) => {
         try {
             const user = await userService.getUserService(req.body.id);
@@ -30,6 +32,7 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
     },
+    //método de add um usuário
     addUser: async(req: Request, res: Response) =>{
         try{
             const result = await userService.addUserService(req.body);
@@ -48,6 +51,7 @@ const userController = {
         }
 
     },
+    //método de dar update em um usuário
     updateUser: async(req: Request, res: Response) =>{
         try{
             const result = await userService.updateUserService(req.body);
@@ -66,6 +70,7 @@ const userController = {
         }
 
     },
+    //método de alterar a senha de um usuário em específico
     alterarSenha: async(req: Request, res: Response) =>{
         try{
             const result = await userService.alterarSenhaService(req.body);
@@ -84,6 +89,7 @@ const userController = {
         }
 
     },
+    //método de enviar o email pro usuário caso exista em nosso bd
     recuperarSenha: async(req: Request, res: Response) =>{
         try{
             const { email } = req.body;
@@ -106,4 +112,6 @@ const userController = {
 
     }
 };
+
+//export do controller
 export default userController;

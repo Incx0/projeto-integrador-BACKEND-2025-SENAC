@@ -1,9 +1,9 @@
-//importsss
+//importsss do service e express
 import hospitalService from "../services/hospital.service.js";
 import { Request, Response } from "express";
 
 const userController = {
-    //métodos do controller de user devem ser adicionados aqui
+    //metodo de get de tds os hospitais
     getAllhospitais: async (req: Request, res: Response) => {
         try {
             const hospitais = await hospitalService.getAllHospitaisService();
@@ -17,6 +17,8 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
     },
+
+    //metodo de get de um hospital por id
     getHospital: async (req: Request, res: Response) => {
         try {
             const hospital = await hospitalService.getHospitalService(req.body.id);
@@ -30,6 +32,8 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
     },
+
+    //metodo de add hospital
     addHospital: async (req: Request, res: Response) => {
         //nn sei como a foto ta pegando, mas nn mexe
         try {
@@ -61,6 +65,8 @@ const userController = {
             res.status(500).json({ error: "Erro interno do server" });
         }
     },
+
+    //metodo de dar update em um hospital, somente os campos enviados no body
     updateHospital: async (req: Request, res: Response) => {
         try {
             const foto = req.file ? req.file.buffer : null;
@@ -84,6 +90,8 @@ const userController = {
             res.status(500).json({ error: "Erro interno do server" });
         }
     },
+
+    //delete de hospital por id
     deleteHospital: async(req: Request, res: Response) =>{
         try{
             const result = await hospitalService.deleteHospitalService(req.body.id);
@@ -103,4 +111,6 @@ const userController = {
 
     }
 };
+
+//export do controller do hospital
 export default userController;

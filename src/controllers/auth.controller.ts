@@ -1,9 +1,12 @@
+//imports do service e express
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service.js";
 
 const authService = new AuthService();
 
 export class AuthController {
+
+  //metodo de login
   static async login(req: Request, res: Response) {
     const { usuario, email, senha } = req.body;
     const login = await authService.login(usuario || email, senha);
@@ -19,6 +22,7 @@ export class AuthController {
     });
   }
 
+  //metodo de logout
   static async logout(req: Request, res: Response) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -28,6 +32,8 @@ export class AuthController {
     await authService.logout(token);
     return res.json({ message: "Logout realizado com sucesso" });
   }
+
+  //metodo de validar o token
   static async validarToken(req: Request, res: Response) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];

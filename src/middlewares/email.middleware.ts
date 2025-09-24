@@ -6,6 +6,7 @@ dotenv.config();
 console.log("User:", process.env.EMAIL_USER);
 console.log("Pass:", process.env.EMAIL_PASS);
 
+//info de login do gmail
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,

@@ -1,10 +1,15 @@
+//import do controller de autenticacao e router
 import { Router } from "express";
-import { AuthController } from "../controllers/auth.controller.js";
+
+//tentiva ruim de usar classe
+import  {AuthController}  from "../controllers/auth.controller.js";
 
 const router = Router();
 
+//rotas exemplo("/auth/login")
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
 router.post("/validar-token", AuthController.logout);
 
+//export do router
 export default router;

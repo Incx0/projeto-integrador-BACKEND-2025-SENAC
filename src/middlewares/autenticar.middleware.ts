@@ -1,8 +1,10 @@
+//muitos imports
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.service";
 
 const authService = new AuthService();
 
+//funcao de autenticação
 export const autenticar = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
