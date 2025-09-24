@@ -5,6 +5,7 @@ import { Router } from "express";
 const router = Router();
 
 router.get("/", userController.getAllUsers);
+router.get("/get-user", userController.getUser);
 router.post("/add-user", userController.addUser);
 router.post("/update-user", userController.updateUser);
 router.post("/alterar-senha", userController.alterarSenha);

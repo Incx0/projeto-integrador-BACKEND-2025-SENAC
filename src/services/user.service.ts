@@ -18,6 +18,17 @@ const userService = {
     return rows;
   },
 
+  getUserService: async (id: number | string) => {
+    if (id == null) throw new Error("id inválido");
+  
+    const conn = await connection();
+    const [rows]: any = await conn.execute(
+      `SELECT * FROM users WHERE id = ?;`,
+      [id]
+    );
+    return rows;
+  },
+
 
   addUserService: async (user:any) => {
     let {email, usuario, senha, nome, nascimento, cpf} = user;
