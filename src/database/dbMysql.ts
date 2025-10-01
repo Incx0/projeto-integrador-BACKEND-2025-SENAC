@@ -4,10 +4,11 @@ import mysql2 from "mysql2/promise";
 
 async function connectToDatabase() {
   const connection = await mysql2.createConnection({
-    host: 'localhost',
+    host: 'yamabiko.proxy.rlwy.net',
     user: 'root',
-    password: '',
-    database: 'pi_2025'
+    password: 'aveolXRubmwhyUXKbyaxYmazTGDkkiOb',
+    database: 'pi_2025',
+    port: 54280
   });
   return connection;
 }
