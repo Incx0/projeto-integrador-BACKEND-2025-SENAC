@@ -12,7 +12,7 @@ const connection = async () => dbMysql.connect()
 const hospitalService = {
   getAllHospitaisService: async () => {
     const conn = await connection();
-    const [rows] = await conn.execute('SELECT a.id, a.nome, a.lati, a.longi, a.uf, a.cidade, a.foto, b.tempo_espera FROM hospitais AS a join fila_espera AS b where a.id = b.hospitais_id;');
+    const [rows] = await conn.execute('SELECT a.id, a.nome, a.lati, a.longi,a.uf, a.cidade, a.foto, b.tempo_espera FROM hospitais AS a join fila_espera AS b where a.id = b.hospitais_id;');
     return rows;
   },
   getHospitalService: async (id: number | string) => {
