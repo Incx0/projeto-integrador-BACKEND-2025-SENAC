@@ -74,7 +74,7 @@ const hospitalService = {
       const hospitalId = insertHospital.insertId;
 
       await conn.execute<ResultSetHeader>(
-        `INSERT INTO qtd_medicos (qtd, qtd_livre, hospitais_id) 
+        `INSERT INTO qtd_medicos (qtd, qtd_livres, hospitais_id) 
          VALUES (?, ?, ?)`,
         [2, 1.0, hospitalId]
       );
