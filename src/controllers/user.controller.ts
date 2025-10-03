@@ -110,6 +110,26 @@ const userController = {
             res.status(500).json({error:'Erro interno do server'});
         }
 
+    },
+
+    //delete de usuario por id
+    deleteUser: async(req: Request, res: Response) =>{
+        try{
+            const result = await userService.deleteUserService(req.body.id);
+
+            if(result.error){
+                return res.status(400).json(result);
+            }
+            res.json(result)
+        }catch(error){
+            if(error instanceof Error){
+                console.error('Erro ao deletar hospital: ', error.message);
+            }else{
+                console.error('Erro desconhecido: ', error);
+            }
+            res.status(500).json({error:'Erro interno do server'});
+        }
+
     }
 };
 

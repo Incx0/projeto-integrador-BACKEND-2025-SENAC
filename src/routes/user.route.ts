@@ -12,6 +12,7 @@ router.post("/add-user", userController.addUser);
 router.post("/update-user", userController.updateUser);
 router.post("/alterar-senha", userController.alterarSenha);
 router.post("/enviar-recuperar-senha", userController.recuperarSenha);
+router.delete("/delete-user", userController.deleteUser);
 
 //exportando o router
 export default router;

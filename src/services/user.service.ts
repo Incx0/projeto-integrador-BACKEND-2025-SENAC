@@ -149,6 +149,15 @@ const userService = {
     }
   },
 
+  deleteUserService: async (id:any) => {
+    const conn = await connection();
+    const [rows]: any = await conn.execute(
+        `DELETE FROM users WHERE id = ?`,
+        [id]
+    );
+    return rows;
+  },
+
   recuperarSenhaService: async (email:any)=>{
 
     
