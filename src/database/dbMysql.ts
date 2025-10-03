@@ -17,7 +17,7 @@ const dbMysql = {
   connect: async function() {
     try {
         const connection = await connectToDatabase();
-        console.log("conexão com o bd concluída com êxito");
+        console.log("conexão estabelecida");
         return connection;
     } catch (error) {
         console.error("erro ao conectar com o bd:", error);
