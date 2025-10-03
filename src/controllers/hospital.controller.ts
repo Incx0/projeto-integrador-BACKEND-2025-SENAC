@@ -37,8 +37,12 @@ const userController = {
     addHospital: async (req: Request, res: Response) => {
         //nn sei como a foto ta pegando, mas nn mexe
         try {
-            const { nome, lati, long, uf, cidade, logradouro, bairro } = req.body;
-            const foto = req.file ? req.file.buffer : null;
+            const { nome, lati, long, uf, cidade, logradouro, bairro} = req.body;
+            
+            let fotoBase64 = null;
+            if (req.file && req.file.buffer) {
+                fotoBase64 = req.file.buffer.toString('base64');
+            }
       
             const result = await hospitalService.addHospitalService({
                 nome,
@@ -48,7 +52,7 @@ const userController = {
                 cidade,
                 logradouro,
                 bairro,
-                foto
+                foto: fotoBase64
             });
       
             if (result.error) {
