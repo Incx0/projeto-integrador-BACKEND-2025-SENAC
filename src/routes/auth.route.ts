@@ -9,7 +9,7 @@ const router = Router();
 //rotas exemplo("/auth/login")
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
-router.post("/validar-token", AuthController.logout);
+router.post("/validar-token", AuthController.validarToken);
 
 //export do router
 export default router;

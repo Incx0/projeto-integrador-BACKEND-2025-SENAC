@@ -8,16 +8,16 @@ export class AuthController {
 
   //metodo de login
   static async login(req: Request, res: Response) {
-    const { usuario, email, senha } = req.body;
-    const login = await authService.login(usuario || email, senha);
+    const { login, senha } = req.body;
+    const loginInfo = await authService.login(login, senha);
 
-    if (!login) {
+    if (!loginInfo) {
       return res.status(401).json({ message: "Credenciais inválidas" });
     }
 
     return res.json({
       message: "Login realizado com sucesso",
-      token: login.token
+      token: loginInfo.token
     });
   }
 
