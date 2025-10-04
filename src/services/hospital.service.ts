@@ -9,36 +9,69 @@ import { ResultSetHeader } from "mysql2/promise";
 const connection = async () => dbMysql.connect()
 
 const hospitalService = {
+
+  //traz todos os hospitais
   getAllHospitaisService: async () => {
-    const conn = await connection();
-    const [rows] = await conn.execute('SELECT a.id, a.nome, a.lati, a.longi,a.uf, a.cidade, a.foto, b.tempo_espera FROM hospitais AS a join fila_espera AS b where a.id = b.hospitais_id;');
-    return rows;
+    let conn;
+    try {
+      conn = await connection();
+      const [rows] = await conn.execute(
+        'SELECT a.id, a.nome, a.lati, a.longi, a.uf, a.cidade, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b WHERE a.id = b.hospitais_id;'
+      );
+      return rows;
+    } catch (error) {
+      console.error("Erro ao buscar hospitais:", error);
+      return { error: "Erro ao buscar hospitais", err: error };
+    } finally {
+      conn?.release();
+    }
   },
+
+  //traz um hospital em especifico por id
   getHospitalService: async (id: number | string) => {
     if (id == null) throw new Error("id inválido");
-  
+
     const hospitalId = Number(id);
     if (isNaN(hospitalId)) throw new Error("id inválido");
-  
-    const conn = await connection();
-    const [rows]: any = await conn.execute(
-      `SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera FROM hospitais AS a JOIN fila_espera AS b WHERE a.id =? and b.hospitais_id = ?;`,
-      [hospitalId, hospitalId]
-    );
-    return rows;
+
+    let conn;
+    try {
+      conn = await connection();
+      const [rows]: any = await conn.execute(
+        `SELECT a.nome, a.lati, a.longi, a.foto, b.tempo_espera
+        FROM hospitais AS a
+        JOIN fila_espera AS b
+        WHERE a.id = ? AND b.hospitais_id = ?;`,
+        [hospitalId, hospitalId]
+      );
+      return rows;
+    } catch (error) {
+      console.error("Erro ao buscar hospital:", error);
+      return { error: "Erro ao buscar hospital", err: error };
+    } finally {
+      conn?.release();
+    }
   },
+
+
+  //adiciona um hospital
   addHospitalService: async (hospital: any) => {
+    //descontroi o "body"
     let { nome, lati, longi, uf, cidade, logradouro, bairro, foto } = hospital;
-  
+
+    //valida se os "campos" existem
     if (!nome || !lati || !longi || !uf || !cidade || !logradouro || !bairro || !foto) {
       return { error: "Insira os dados corretamente" };
     }
-  
+
+    //declara conexão com bd
     let conn;
   
     try {
+      //executa a conexão com o bd
       conn = await connection();
-  
+
+      //verifica se já
       const [rowsLati]: any = await conn.execute(
         `SELECT lati FROM hospitais WHERE lati = ?`,
         [lati]
@@ -57,9 +90,8 @@ const hospitalService = {
       const hasLogradouro = rowsLogradouro.length > 0;
   
       if (hasLati || hasLongi || hasLogradouro) {
-        let msg = "Já existe um hospital com este(a)";
-        if (hasLati) msg += " latitude";
-        if (hasLongi) msg += " longitude";
+        let msg = "Já existe um hospital com este(es/a/as)";
+        if (hasLati && hasLongi) msg += " cordenadas";
         if (hasLogradouro) msg += " logradouro";
         return { error: msg.trim() };
       }
@@ -89,7 +121,7 @@ const hospitalService = {
       console.error(error);
       return { error: "Erro ao cadastrar hospital", err: error };
     } finally {
-      if (conn) conn.end();
+      conn?.release();
     }
   },
   updateHospitalService: async (hospital: any) => {
@@ -277,17 +309,26 @@ const hospitalService = {
       console.error(err);
       return { error: "Erro ao atualizar hospital", err };
     } finally {
-      if (conn) conn.end();
+      conn?.release();
     }
   },
-  deleteHospitalService: async (id:any) => {
-    const conn = await connection();
-    const [rows]: any = await conn.execute(
+  deleteHospitalService: async (id: any) => {
+    let conn;
+    try {
+      conn = await connection();
+      const [rows]: any = await conn.execute(
         `DELETE FROM hospitais WHERE id = ?`,
         [id]
-    );
-    return rows;
+      );
+      return rows;
+    } catch (error) {
+      console.error("Erro ao deletar hospital:", error);
+      return { error: "Erro ao deletar hospital", err: error };
+    } finally {
+      conn?.release();
+    }
   },
+
 };
 
 export {connection};

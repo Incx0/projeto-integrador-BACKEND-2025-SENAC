@@ -1,28 +1,27 @@
-//slk nn vou documentar essa coisa nn
-import { Application } from "express";
 import mysql2 from "mysql2/promise";
 
-async function connectToDatabase() {
-  const connection = await mysql2.createConnection({
-    host: 'yamabiko.proxy.rlwy.net',
-    user: 'root',
-    password: 'aveolXRubmwhyUXKbyaxYmazTGDkkiOb',
-    database: 'pi_2025',
-    port: 54280
-  });
-  return connection;
-}
+const pool = mysql2.createPool({
+  host: "yamabiko.proxy.rlwy.net",
+  user: "root",
+  password: "aveolXRubmwhyUXKbyaxYmazTGDkkiOb",
+  database: "pi_2025",
+  port: 54280,
+  waitForConnections: true,
+  connectionLimit: 10, // número máximo de conexões simultâneas
+  queueLimit: 0
+});
 
 const dbMysql = {
-  connect: async function() {
+  connect: async () => {
     try {
-        const connection = await connectToDatabase();
-        console.log("conexão estabelecida");
-        return connection;
+      const connection = await pool.getConnection();
+      console.log("Conexão com o banco obtida do pool");
+      return connection;
     } catch (error) {
-        console.error("erro ao conectar com o bd:", error);
-        throw error;
+      console.error("Erro ao conectar com o BD:", error);
+      throw error;
     }
-    }
+  }
 };
+
 export default dbMysql;

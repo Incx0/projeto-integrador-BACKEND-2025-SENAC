@@ -8,6 +8,7 @@ import userRoute from './routes/user.route.js';
 import authRoute from './routes/auth.route.js';
 import hospitalRoute from './routes/hospital.route.js';
 
+//env
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -22,6 +23,7 @@ dbMysql.connect();
 // Middlewares(processa reqs e res's escrevi bunito agr)
 app.use(express.json());
 
+//configuração do cors
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST'],

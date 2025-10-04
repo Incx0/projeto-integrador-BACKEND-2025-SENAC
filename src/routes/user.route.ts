@@ -7,6 +7,7 @@ import { autenticar } from "../middlewares/autenticar.middleware.js";
 import { Router } from "express";
 const router = Router();
 
+//"auth guard"
 router.use(autenticar);
 
 //rotas exemplo("/user/add-user")
