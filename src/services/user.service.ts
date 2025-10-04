@@ -1,5 +1,4 @@
 //importando dbMysql(basicamente o db);
-import { log } from "console";
 import dbMysql from "../database/dbMysql.js";
 
 import { ResultSetHeader } from "mysql2/promise";
@@ -7,6 +6,8 @@ import { ResultSetHeader } from "mysql2/promise";
 import  send  from "./send-email.service.js"
 
 import crypto, { randomBytes } from "crypto";
+
+import { hashSenha } from "../helpers/auth.helper.js";
 
 //faz a conexão com o banco de dados
 const connection = async () => dbMysql.connect()
@@ -38,6 +39,8 @@ const userService = {
     }
   
     let conn;
+
+    const senhaHash = await hashSenha(senha);
   
     try {
       conn = await connection();
@@ -69,24 +72,8 @@ const userService = {
   
       const [result] = await conn.execute<ResultSetHeader>(
         `INSERT INTO users (email, usuario, senha, nome, nascimento, cpf) VALUES (?, ?, ?, ?, ?, ?)`,
-        [email, usuario, senha, nome, nascimento, cpf]
+        [email, usuario, senhaHash, nome, nascimento, cpf]
       );
-      
-      const userId = result.insertId;
-  
-      const verifyCode = crypto.randomBytes(4).toString("hex");
-
-      const now = new Date();
-      const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  
-      await conn.execute(
-        `INSERT INTO \`codigos\` (user_id, codigo, tipo, expiracao) VALUES (?, ?, "verificacao", ?)`,
-        [userId, verifyCode]
-      );
-  
-      console.log(verifyCode);
-  
-      await send.sendEmailVerifyAccountService(email, nome, verifyCode);
   
       return {message:'Usuario cadastrado com sucesso'};
   
@@ -102,7 +89,7 @@ const userService = {
 
 
   updateUserService: async (user:any)=> {
-    let {cpf, email, senha, nome, nascimento}:any = user;
+    let {id, usuario, email, senha, nome, nascimento}:any = user;
 
     
     let conn;
@@ -110,30 +97,36 @@ const userService = {
     try{
       conn = await connection()
       
-      if(!cpf || cpf.length === 0) return {error:'não foi informado o usuário a ser alterado'};''
+      if(!id || id.length === 0) return {error:'não foi informado o usuário a ser alterado'};''
 
       if (email) {
         const updateEmail = await conn.execute(
-          `UPDATE users SET email = ? WHERE cpf = ?`,
-          [email, cpf]
+          `UPDATE users SET email = ? WHERE id = ?`,
+          [email, id]
         );
+      }
+      if (usuario) {
+        const updateUser = await conn.execute(
+          `UPDATE users SET usuario = ? WHERE id = ?`,
+          [usuario, id]
+        )
       }
       if (senha) {
         const updateSenha = await conn.execute(
-          `UPDATE users SET senha = ? WHERE cpf = ?`,
-          [senha, cpf]
+          `UPDATE users SET senha = ? WHERE id = ?`,
+          [senha, id]
         );
       }
       if (nome) {
         const updateNome = await conn.execute(
-          `UPDATE users SET nome = ? WHERE cpf = ?`,
-          [nome, cpf]
+          `UPDATE users SET nome = ? WHERE id = ?`,
+          [nome, id]
         );
       }
       if (nascimento) {
         const updateNascimento = await conn.execute(
-          `UPDATE users SET nascimento = ? WHERE cpf = ?`,
-          [nascimento, cpf]
+          `UPDATE users SET nascimento = ? WHERE id = ?`,
+          [nascimento, id]
         );
       }
 
@@ -172,31 +165,42 @@ const userService = {
       if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};
 
       const [rowsEmail]:any = await conn.execute(
-        `SELECT cpf, nome FROM users WHERE email = ?`,
+        `SELECT id, nome FROM users WHERE email = ?`,
         [email]
       );
 
-      let {cpf, nome} = rowsEmail[0];
-
-      console.log(cpf);
+      let {id, nome} = rowsEmail[0];
 
       if (!rowsEmail || rowsEmail.length === 0) {
-        return null;
+        return {message:'usuário não existe'};
       }
 
       const recupCode = crypto.randomBytes(4).toString("hex");
 
       console.log(recupCode);
+
+      await conn.execute(
+        `DELETE FROM codigos WHERE id = ?`,
+        [id]
+      );
+
+      const now = new Date();
+      const expiracao = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      await conn.execute(
+        `INSERT INTO \`codigos\` (user_id, codigo, tipo, expiracao) VALUES (?, ?)`,
+        [id, recupCode, expiracao]
+      );
   
       await send.sendRecupPasswordEmailService(email, nome, recupCode);
 
-      return {message:'email enviado'};
+      return {message:'Email enviado'};
 
     }catch(error){
       const err = error;
       console.error(error);
 
-      return {error:'Erro ao atualizar usuário', err};
+      return {error:'Erro ao recuperar usuário', err};
 
     }finally{
       if(conn){
@@ -206,7 +210,7 @@ const userService = {
   },
 
   alterarSenhaService: async (user:any)=>{
-    let {email, senhaNova} = user;
+    let {recupCode, senhaNova} = user;
 
     
     let conn;
@@ -214,25 +218,23 @@ const userService = {
     try{
       conn = await connection()
       
-      if(!email || email.length === 0) return {error:'não foi informado o usuário a ser alterado'};
-
-      const [rowsEmail]:any = await conn.execute(
-        `SELECT cpf FROM users WHERE email = ?`,
-        [email]
+      const [rowsRecupCode]:any = await conn.execute(
+        `SELECT user_id FROM codigos WHERE codigo = ? AND expiracao > NOW()`,
+        [recupCode]
       );
-
-      let {cpf} = rowsEmail[0];
-
-      if (!rowsEmail || rowsEmail.length === 0) {
-        return {error:'não há usuário com este email'};
+      
+      if (!rowsRecupCode || rowsRecupCode.length === 0) {
+        return {error:'Código inválido'};
       }
 
-      const updateEmail = await conn.execute(
-        `UPDATE users SET senha = ? WHERE cpf = ?`,
-        [senhaNova, cpf]
+      const id = rowsRecupCode[0].id;
+
+      const updateSenha = await conn.execute(
+        `UPDATE users SET senha = ? WHERE id = ?`,
+        [senhaNova, id]
       );
 
-      return {message:'senha do usuario atualizada com sucesso'};
+      return {message:'Senha do usuário atualizada com sucesso'};
 
     }catch(error){
       const err = error;

@@ -1,5 +1,7 @@
 import dbMysql from "../database/dbMysql.js";
 import crypto from "crypto";
+import { compareSenha } from "../helpers/auth.helper.js";
+
 
 // mantém sua função de conexão
 const connection = async () => dbMysql.connect();
@@ -9,10 +11,10 @@ export class AuthService {
     const conn = await connection();
 
     const [rows]: any = await conn.execute(
-      `SELECT id, nome, usuario, email
+      `SELECT id, nome, usuario, email, senha, is_master_admin
        FROM users 
-       WHERE (usuario = ? OR email = ?) AND senha = ? `, 
-      [usuarioOuEmail, usuarioOuEmail, senha]
+       WHERE usuario = ? OR email = ?`, 
+      [usuarioOuEmail, usuarioOuEmail]
     );
 
     if (!rows || rows.length === 0) {
@@ -20,6 +22,10 @@ export class AuthService {
     }
 
     const user = rows[0];
+
+    const validarSenha = await compareSenha(senha, user.senha);
+    if (!validarSenha) return null;
+
     const token = crypto.randomBytes(32).toString("hex");
 
     const now = new Date();
@@ -39,7 +45,8 @@ export class AuthService {
       token,
       nome: user.nome,
       usuario: user.usuario,
-      email: user.email
+      email: user.email,
+      is_master_admin: user.is_master_admin
     };
   }
 

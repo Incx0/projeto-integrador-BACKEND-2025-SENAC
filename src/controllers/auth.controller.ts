@@ -20,7 +20,8 @@ export class AuthController {
       token: loginInfo.token,
       nome : loginInfo.nome,
       usuario: loginInfo.usuario,
-      email: loginInfo.email
+      email: loginInfo.email,
+      is_master_admin: loginInfo.is_master_admin
     });
   }
 
