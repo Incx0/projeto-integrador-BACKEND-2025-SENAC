@@ -24,7 +24,12 @@ export class AuthService {
 
     const now = new Date();
     const expiracao = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
+    await conn.execute(
+      `DELETE FROM sessoes WHERE user_id = ?`,
+      [user.id]
+    );
+
     await conn.execute(
       `INSERT INTO sessoes (user_id, token, expiracao) VALUES (?, ?, ?)`,
       [user.id, token, expiracao]

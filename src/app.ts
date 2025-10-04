@@ -35,7 +35,7 @@ app.use("/hospital", hospitalRoute);
 
 // Iniciando server
 app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+  console.log(`Server rodando em projeto-integrador-backend-2025-senac.onrender.com (ou para teste internos localhost:${port})`);
 });
 
 //obs: estou aprendendo a usar o typescript(só sei js e quase nada de php) até o presente momento de dev da api, ter paciência
