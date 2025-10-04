@@ -1,6 +1,6 @@
 //muitos imports
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "../services/auth.service";
+import { AuthService } from "../services/auth.service.js";
 
 const authService = new AuthService();
 
