@@ -43,6 +43,6 @@ export class AuthController {
     if (!token) return res.status(400).json({ message: "Token não informado" });
 
     await authService.validarToken(token);
-    return res.json({ message: "token válido" });
+    return res.status(202).json({ message: "token válido" });
   }
 }
