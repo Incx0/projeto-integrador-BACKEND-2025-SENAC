@@ -14,21 +14,42 @@ const connection = async () => dbMysql.connect()
 
 const userService = {
   getAllUsersService: async () => {
-    const conn = await connection();
-    const [rows] = await conn.execute('SELECT * FROM users');
-    return rows;
+    let conn;
+    try {
+      conn = await connection();
+      const [rows] = await conn.execute('SELECT * FROM users');
+      return rows;
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return { error: "Erro ao buscar usuários", err: error };
+    } finally {
+      conn?.release();
+    }
   },
+
 
   getUserService: async (id: number | string) => {
     if (id == null) throw new Error("id inválido");
-  
-    const conn = await connection();
-    const [rows]: any = await conn.execute(
-      `SELECT * FROM users WHERE id = ?;`,
-      [id]
-    );
-    return rows;
+
+    let conn;
+    try {
+      const userId = Number(id);
+      if (isNaN(userId)) throw new Error("id inválido");
+
+      conn = await connection();
+      const [rows]: any = await conn.execute(
+        `SELECT * FROM users WHERE id = ?;`,
+        [userId]
+      );
+      return rows;
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      return { error: "Erro ao buscar usuário", err: error };
+    } finally {
+      conn?.release();
+    }
   },
+
 
 
   addUserService: async (user:any) => {
@@ -82,7 +103,7 @@ const userService = {
       return {error:'Erro ao cadastrar usuário', err: error};
   
     } finally {
-      if(conn) conn.end();
+      conn?.release();
     }
   },
   
@@ -139,24 +160,29 @@ const userService = {
       return {error:'Erro ao atualizar usuário', err};
 
     }finally{
-      if(conn){
-        conn.end();
-      }
+      conn?.release();
     }
   },
 
-  deleteUserService: async (id:any) => {
-    const conn = await connection();
-    const [rows]: any = await conn.execute(
+  deleteUserService: async (id: any) => {
+    let conn;
+    try {
+      conn = await connection();
+      const [rows]: any = await conn.execute(
         `DELETE FROM users WHERE id = ?`,
         [id]
-    );
-    return rows;
+      );
+      return rows;
+    } catch (error) {
+      console.error("Erro ao deletar usuário:", error);
+      return { error: "Erro ao deletar usuário", err: error };
+    } finally {
+      conn?.release();
+    }
   },
 
-  recuperarSenhaService: async (email:any)=>{
 
-    
+  recuperarSenhaService: async (email:any)=>{
     let conn;
     
     try{
@@ -203,9 +229,7 @@ const userService = {
       return {error:'Erro ao recuperar usuário', err};
 
     }finally{
-      if(conn){
-        conn.end();
-      }
+      conn?.release();
     }
   },
 
@@ -243,13 +267,9 @@ const userService = {
       return {error:'Erro ao atualizar usuário', err};
 
     }finally{
-      if(conn){
-        conn.end();
-      }
+      conn?.release();
     }
   }
 };
-
-export {connection};
 
 export default userService;

@@ -4,6 +4,7 @@ import { Router } from "express";
 //tentiva ruim de usar classe
 import  {AuthController}  from "../controllers/auth.controller.js";
 
+//declarando o router
 const router = Router();
 
 //rotas exemplo("/auth/login")
