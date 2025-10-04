@@ -15,9 +15,12 @@ export class AuthController {
       return res.status(401).json({ message: "Credenciais inválidas" });
     }
 
-    return res.json({
+    return res.status(202).json({
       message: "Login realizado com sucesso",
-      token: loginInfo.token
+      token: loginInfo.token,
+      nome : loginInfo.nome,
+      usuario: loginInfo.usuario,
+      email: loginInfo.email
     });
   }
 
@@ -29,7 +32,7 @@ export class AuthController {
     if (!token) return res.status(400).json({ message: "Token não informado" });
 
     await authService.logout(token);
-    return res.json({ message: "Logout realizado com sucesso" });
+    return res.status(202).json({ message: "Logout realizado com sucesso" });
   }
 
   //metodo de validar o token
@@ -40,6 +43,6 @@ export class AuthController {
     if (!token) return res.status(400).json({ message: "Token não informado" });
 
     await authService.validarToken(token);
-    return res.json({ message: "Logout realizado com sucesso" });
+    return res.json({ message: "token válido" });
   }
 }

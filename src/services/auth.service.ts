@@ -9,7 +9,7 @@ export class AuthService {
     const conn = await connection();
 
     const [rows]: any = await conn.execute(
-      `SELECT id, cpf
+      `SELECT id, nome, usuario, email
        FROM users 
        WHERE (usuario = ? OR email = ?) AND senha = ? `, 
       [usuarioOuEmail, usuarioOuEmail, senha]
@@ -30,7 +30,12 @@ export class AuthService {
       [user.id, token, expiracao]
     );
 
-    return { token };
+    return {
+      token,
+      nome: user.nome,
+      usuario: user.usuario,
+      email: user.email
+    };
   }
 
   async logout(token: string) {
