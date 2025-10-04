@@ -45,9 +45,9 @@ export class AuthController {
     const validToken = await authService.validarToken(token);
 
     if (!validToken) {
-      return res.status(401).json({ message: "token inválido" });
+      return res.status(401).json({ message: "Token inválido" });
     }
 
-    return res.status(202).json({ message: "token válido" });
+    return res.status(202).json({ message: "Token válido" });
   }
 }
