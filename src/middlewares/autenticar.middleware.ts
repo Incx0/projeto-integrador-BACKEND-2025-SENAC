@@ -11,12 +11,12 @@ export const autenticar = async (req: Request, res: Response, next: NextFunction
 
   if (!token) return res.status(401).json({ message: "Token não informado" });
 
-  const funcionario = await authService.validarToken(token);
+  const usuario = await authService.validarToken(token);
 
-  if (!funcionario) {
+  if (!usuario) {
     return res.status(401).json({ message: "Token inválido ou expirado" });
   }
 
-  (req as any).funcionario = funcionario;
+  (req as any).usuario = usuario;
   next();
 };

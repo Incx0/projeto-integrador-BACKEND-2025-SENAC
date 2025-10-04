@@ -17,8 +17,7 @@ export class AuthController {
 
     return res.json({
       message: "Login realizado com sucesso",
-      token: login.token,
-      funcionario: login.user
+      token: login.token
     });
   }
 

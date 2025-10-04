@@ -29,9 +29,9 @@ const hospitalService = {
     return rows;
   },
   addHospitalService: async (hospital: any) => {
-    let { nome, lati, long, uf, cidade, logradouro, bairro, foto } = hospital;
+    let { nome, lati, longi, uf, cidade, logradouro, bairro, foto } = hospital;
   
-    if (!nome || !lati || !long || !uf || !cidade || !logradouro || !bairro || !foto) {
+    if (!nome || !lati || !longi || !uf || !cidade || !logradouro || !bairro || !foto) {
       return { error: "Insira os dados corretamente" };
     }
   
@@ -44,9 +44,9 @@ const hospitalService = {
         `SELECT lati FROM hospitais WHERE lati = ?`,
         [lati]
       );
-      const [rowsLong]: any = await conn.execute(
+      const [rowsLongi]: any = await conn.execute(
         `SELECT longi FROM hospitais WHERE longi = ?`,
-        [long]
+        [longi]
       );
       const [rowsLogradouro]: any = await conn.execute(
         `SELECT logradouro FROM hospitais WHERE logradouro like ? AND cidade = ? AND bairro = ? AND uf = ?`,
@@ -54,13 +54,13 @@ const hospitalService = {
       );
   
       const hasLati = rowsLati.length > 0;
-      const hasLong = rowsLong.length > 0;
+      const hasLongi = rowsLongi.length > 0;
       const hasLogradouro = rowsLogradouro.length > 0;
   
-      if (hasLati || hasLong || hasLogradouro) {
+      if (hasLati || hasLongi || hasLogradouro) {
         let msg = "Já existe um hospital com este(a)";
         if (hasLati) msg += " latitude";
-        if (hasLong) msg += " longitude";
+        if (hasLongi) msg += " longitude";
         if (hasLogradouro) msg += " logradouro";
         return { error: msg.trim() };
       }
@@ -68,20 +68,20 @@ const hospitalService = {
       const [insertHospital] = await conn.execute<ResultSetHeader>(
         `INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nome, lati, long, uf, cidade, logradouro, bairro, foto]
+        [nome, lati, longi, uf, cidade, logradouro, bairro, foto]
       );
 
       const hospitalId = insertHospital.insertId;
 
       await conn.execute<ResultSetHeader>(
-        `INSERT INTO qtd_medicos (qtd, qtd_livre, hospitais_id) 
+        `INSERT INTO qtd_medicos (qtd, qtd_livres, hospitais_id) 
          VALUES (?, ?, ?)`,
         [2, 1.0, hospitalId]
       );
 
       await conn.execute<ResultSetHeader>(
         `INSERT INTO fila_espera (qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, tempo_espera, hospitais_id) 
-         VALUES (?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [0, 0, 0, 0, 0, hospitalId]
       );
   
@@ -98,7 +98,7 @@ const hospitalService = {
       id,
       nome,
       lati,
-      long,
+      longi,
       uf,
       cidade,
       logradouro,
@@ -195,9 +195,9 @@ const hospitalService = {
         [lati, id]);
       }
   
-      if (long !== undefined && long !== null) {
+      if (longi !== undefined && longi !== null) {
         await conn.execute(`UPDATE hospitais SET longi = ? WHERE id = ?`,
-        [long, id]);
+        [longi, id]);
       }
   
       if (nome !== undefined && nome !== null) {

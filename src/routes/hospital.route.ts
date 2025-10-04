@@ -15,7 +15,7 @@ router.get("/all", hospitalController.getAllhospitais);
 router.get("/get-hospital", hospitalController.getHospital);
 router.post("/add-hospital", upload.single("foto"), hospitalController.addHospital);
 router.post("/update", upload.single("foto"), hospitalController.updateHospital);
-router.delete("/delete-hospital", hospitalController.deleteHospital);
+router.post("/delete-hospital", hospitalController.deleteHospital);
 
 //exportando o router 
 export default router;
