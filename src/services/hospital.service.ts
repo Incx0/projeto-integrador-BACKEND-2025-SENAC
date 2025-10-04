@@ -44,7 +44,7 @@ const hospitalService = {
         `SELECT lati FROM hospitais WHERE lati = ?`,
         [lati]
       );
-      const [rowslongi]: any = await conn.execute(
+      const [rowsLongi]: any = await conn.execute(
         `SELECT longi FROM hospitais WHERE longi = ?`,
         [longi]
       );
@@ -54,13 +54,13 @@ const hospitalService = {
       );
   
       const hasLati = rowsLati.length > 0;
-      const haslongi = rowslongi.length > 0;
+      const hasLongi = rowsLongi.length > 0;
       const hasLogradouro = rowsLogradouro.length > 0;
   
-      if (hasLati || haslongi || hasLogradouro) {
+      if (hasLati || hasLongi || hasLogradouro) {
         let msg = "Já existe um hospital com este(a)";
         if (hasLati) msg += " latitude";
-        if (haslongi) msg += " longitude";
+        if (hasLongi) msg += " longitude";
         if (hasLogradouro) msg += " logradouro";
         return { error: msg.trim() };
       }
