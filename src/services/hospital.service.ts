@@ -1,5 +1,4 @@
 //importando dbMysql(basicamente o db);
-import { log } from "console";
 import dbMysql from "../database/dbMysql.js";
 
 

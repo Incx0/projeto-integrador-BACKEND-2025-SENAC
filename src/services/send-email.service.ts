@@ -1,19 +1,6 @@
 import { sendMail } from "../middlewares/email.middleware.js";
 
 const sendEmailService = {
-    sendEmailVerifyAccountService: async (email:string, nome:string, verifyCode: any) =>{
-        await sendMail(
-            email,
-            "Bem-vindo 🚀",
-            `Olá ${nome}, seu usuário foi criado com sucesso! valide a sua conta`,
-            `<h3>Seu link de verificação se encontra abaixo:</h3>
-             </br>
-             <a>
-                localhost:8100/verificar-conta/${verifyCode}
-             </a>
-            `
-          );
-    },
 
     sendRecupPasswordEmailService: async (email:string, nome:string, recupCode: any) =>{
         await sendMail(
@@ -89,7 +76,7 @@ const sendEmailService = {
                                             </div>
 
                                             <div style="text-align: center; margin: 30px 0;">
-                                                <a href="youtube.com" style="display: inline-block; background-color: #0e2b52; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(14, 43, 82, 0.2);">Redefinir Senha</a>
+                                                <a href="localhost:8100/alteracao-senha/${recupCode}" style="display: inline-block; background-color: #0e2b52; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(14, 43, 82, 0.2);">Redefinir Senha</a>
                                             </div>
 
                                             <p style="color: #666666; font-size: 15px; line-height: 1.6; text-align: center;">Não pediu uma nova senha? Você pode ignorar este e-mail.</p>
