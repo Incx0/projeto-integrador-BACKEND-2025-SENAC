@@ -1,8 +1,13 @@
 //import do controller de usuário
 import userController from "../controllers/user.controller.js";
+
+import { autenticar } from "../middlewares/autenticar.middleware.js";
+
 //import do Router do express
 import { Router } from "express";
 const router = Router();
+
+router.use(autenticar);
 
 //rotas exemplo("/user/add-user")
 router.get("/", userController.getAllUsers);

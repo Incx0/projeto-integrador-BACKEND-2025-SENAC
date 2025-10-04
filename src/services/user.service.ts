@@ -75,9 +75,12 @@ const userService = {
       const userId = result.insertId;
   
       const verifyCode = crypto.randomBytes(4).toString("hex");
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   
       await conn.execute(
-        `INSERT INTO \`codigos\` (user_id, codigo, tipo) VALUES (?, ?, "verificacao")`,
+        `INSERT INTO \`codigos\` (user_id, codigo, tipo, expiracao) VALUES (?, ?, "verificacao", ?)`,
         [userId, verifyCode]
       );
   

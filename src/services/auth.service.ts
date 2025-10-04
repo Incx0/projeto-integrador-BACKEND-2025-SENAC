@@ -11,7 +11,7 @@ export class AuthService {
     const [rows]: any = await conn.execute(
       `SELECT id, cpf
        FROM users 
-       WHERE (usuario = ? OR email = ?) AND senha = ?`, 
+       WHERE (usuario = ? OR email = ?) AND senha = ? `, 
       [usuarioOuEmail, usuarioOuEmail, senha]
     );
 
@@ -22,20 +22,15 @@ export class AuthService {
     const user = rows[0];
     const token = crypto.randomBytes(32).toString("hex");
 
-    const expiracao = new Date();
-    expiracao.setHours(expiracao.getHours() + 8);
+    const now = new Date();
+    const expiracao = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     
     await conn.execute(
       `INSERT INTO sessoes (user_id, token, expiracao) VALUES (?, ?, ?)`,
       [user.id, token, expiracao]
     );
 
-    const updateEmail = await conn.execute(
-      `UPDATE users SET is_verified = 1 WHERE cpf = ?`,
-      [user.cpf]
-    );
-
-    return { token, user };
+    return { token };
   }
 
   async logout(token: string) {
@@ -51,20 +46,20 @@ export class AuthService {
       `SELECT s.id, s.expiracao, u.id as user_id, u.nome, u.usuario, u.email
        FROM sessoes s
        JOIN users u ON u.id = s.user_id
-       WHERE s.token = ?`,
+       WHERE s.token = ? and expiracao > NOW()`,
       [token]
     );
 
     if (!rows || rows.length === 0) return null;
 
     const sessao = rows[0];
-    if (new Date(sessao.expiracao) < new Date()) return null;
 
     return {
       id: sessao.user_id,
       nome: sessao.nome,
       usuario: sessao.usuario,
-      email: sessao.email
+      email: sessao.email,
+      expiracao: sessao.expiracao
     };
   }
 }
