@@ -81,7 +81,7 @@ const hospitalService = {
 
       await conn.execute<ResultSetHeader>(
         `INSERT INTO fila_espera (qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, tempo_espera, hospitais_id) 
-         VALUES (?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [0, 0, 0, 0, 0, hospitalId]
       );
   
