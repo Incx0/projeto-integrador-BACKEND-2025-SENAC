@@ -1,6 +1,8 @@
 //import do controller de hospital
 import hospitalController from "../controllers/hospital.controller.js";
 
+import { autenticar } from "../middlewares/autenticar.middleware.js";
+
 //import do Router do express
 import { Router } from "express";
 const router = Router();
@@ -13,9 +15,9 @@ const upload = multer();
 router.get("/", hospitalController.getAllhospitais);
 router.get("/all", hospitalController.getAllhospitais);
 router.get("/get-hospital", hospitalController.getHospital);
-router.post("/add-hospital", upload.single("foto"), hospitalController.addHospital);
-router.post("/update", upload.single("foto"), hospitalController.updateHospital);
-router.post("/delete-hospital", hospitalController.deleteHospital);
+router.post("/add-hospital", autenticar, upload.single("foto"), hospitalController.addHospital);
+router.post("/update", autenticar, upload.single("foto"), hospitalController.updateHospital);
+router.post("/delete-hospital", autenticar, hospitalController.deleteHospital);
 
 //exportando o router 
 export default router;
