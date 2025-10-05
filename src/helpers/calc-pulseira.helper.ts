@@ -26,11 +26,12 @@ export async function formulaCalcularPulseira(
     };
     
     //calcula a carga total de tempo multiplicando a quantidade de cada pulseira pelo seu peso em específico no tempo de espera
-    const cargaTotal = (laranjas * peso.laranja) + (amarelos * peso.amarelo) + (verdes * peso.verde) + (azuis * peso.azul);
-    
+    let cargaTotal = (laranjas * peso.laranja) + (amarelos * peso.amarelo) + (verdes * peso.verde) + (azuis * peso.azul);
+
     // modificadores de tempo com base na qtd de pulseiras
-    if(laranjas === 0) cargaTotal*0.5;
-    if(laranjas === 0 && amarelos === 0) cargaTotal*0.25;
+    if (laranjas === 0) cargaTotal *= 0.5;
+    if (laranjas === 0 && amarelos === 0) cargaTotal *= 0.25;
+
 
     //tira o produto da cargaTotal pelo divisor, tendo assim o tempo estimado
     const totalTempoEstimado = cargaTotal / divisor;

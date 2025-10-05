@@ -1,4 +1,4 @@
-import { sendMail } from "../middlewares/email.middleware.js"; // agora é Gmail API
+import { sendMail } from "../middlewares/email.middleware.js";
 
 export async function sendRecupCodeEmail(
   email: string,

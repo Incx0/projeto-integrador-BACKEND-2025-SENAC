@@ -91,6 +91,44 @@ const userController = {
         }
     },
 
+    updateFilaHospital: async(req: Request, res: Response) =>{
+        try{
+            const result:any = await hospitalService.updateFilaHospitalService(req.body);
+
+            if(result.error){
+                return res.status(400).json(result);
+            }
+            res.json(result)
+        }catch(error){
+            if(error instanceof Error){
+                console.error('Erro ao atualizar fila: ', error.message);
+            }else{
+                console.error('Erro desconhecido: ', error);
+            }
+            res.status(500).json({error:'Erro interno do server'});
+        }
+
+    },
+
+    updateRemoveFromFilaHospital: async(req: Request, res: Response) =>{
+        try{
+            const result:any = await hospitalService.updateRemoveFromFilaHospitalService(req.body);
+
+            if(result.error){
+                return res.status(400).json(result);
+            }
+            res.json(result)
+        }catch(error){
+            if(error instanceof Error){
+                console.error('Erro ao atualizar fila: ', error.message);
+            }else{
+                console.error('Erro desconhecido: ', error);
+            }
+            res.status(500).json({error:'Erro interno do server'});
+        }
+
+    },
+
     //delete de hospital por id
     deleteHospital: async(req: Request, res: Response) =>{
         try{
