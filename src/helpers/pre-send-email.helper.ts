@@ -43,7 +43,7 @@ export async function sendRecupCodeEmail(
                 <p style="color:#333333;font-size:16px;line-height:1.6;text-align:center;">Agora você pode redefinir sua senha.</p>
                 <div class="highlight-box" style="background-color:#f0f5ff;padding:20px;border-radius:8px;margin:25px 0;">
                   <h2 style="color:#0e2b52;font-size:20px;margin-top:0;">Redefinir senha</h2>
-                  <p style="color:#333333;font-size:16px;line-height:1.6;">Você tem 24 horas para escolher sua senha. Após esse período, será necessário solicitar uma nova senha.</p>
+                  <p style="color:#333333;font-size:16px;line-height:1.6;">Você tem 24 horas para escolher sua senha. Após esse período, será necessário solicitar um novo email de recuperação de senha.</p>
                 </div>
                 <div style="text-align:center;margin:30px 0;">
                   <a href="http://localhost:8100/alteracao-senha/${recupCode}" style="display:inline-block;background-color:#0e2b52;color:#ffffff;padding:14px 35px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;box-shadow:0 4px 6px rgba(14,43,82,0.2);">Redefinir Senha</a>
