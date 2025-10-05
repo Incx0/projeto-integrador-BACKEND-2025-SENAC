@@ -145,6 +145,10 @@ const hospitalService = {
     //valida se o id veio
     if (!id) return { error: "ID do hospital é obrigatório" };
 
+    console.log("id"+ id)
+
+    id = Number(id);
+
     //declara conexão
     let conn:any;
 
@@ -169,6 +173,12 @@ const hospitalService = {
         qtd_verde: verdes,
         qtd_azul: azuis,
       } = rowsPulseiras[0];
+
+      console.log(`bfr: lrj: ${laranjas} amr: ${amarelos} vrd: ${verdes} azs: ${azuis}`);
+
+      if(laranjas == 0 && amarelos == 0 && verdes == 0 && azuis == 0){
+        return { message: "Não há pacientes" };
+      }
 
       //sequencia de verificação e inserts dos campos enviados no body      
       if (laranjas !== undefined && laranjas !== null && laranjas > 0) {
@@ -218,6 +228,8 @@ const hospitalService = {
           qtd_azul: azuis,
         } = rowsPulseiras[0];
 
+        console.log(`afr: lrj: ${laranjas} amr: ${amarelos} vrd: ${verdes} azs: ${azuis}`);
+
         //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
         const [rowsMedicos] = await conn.execute(
           `SELECT qtd, qtd_livres FROM qtd_medicos WHERE hospitais_id = ?`,
@@ -260,10 +272,7 @@ const hospitalService = {
     //desconstroi o "body"
     let {
       id,
-      is_laranja,
-      is_amarelo,
-      is_verde,
-      is_azul,
+      cor
     } = hospital;
 
     //valida se o id veio
@@ -294,33 +303,28 @@ const hospitalService = {
         qtd_azul: azuis,
       } = rowsPulseiras[0];
 
-      console.log(
-        laranjas,
-        amarelos,
-        verdes,
-        azuis
-      )
+      console.log(`bfr: lrj: ${laranjas} amr: ${amarelos} vrd: ${verdes} azs: ${azuis}`);
 
       //sequencia de verificação e inserts dos campos enviados no body      
-      if (is_laranja) {
+      if (cor=="laranja") {
         let qtd = laranjas + 1;
         await conn.execute(`UPDATE fila_espera SET qtd_laranja = ? WHERE hospitais_id = ?`,
         [qtd, id]);
       }
 
-      if (is_amarelo) {
+      if (cor=="amarelo") {
         let qtd = amarelos + 1;
         await conn.execute(`UPDATE fila_espera SET qtd_amarelo = ? WHERE hospitais_id = ?`,
         [qtd, id]);
       }
 
-      if (is_verde) {
+      if (cor=="verde") {
         let qtd = verdes + 1;
         await conn.execute(`UPDATE fila_espera SET qtd_verde = ? WHERE hospitais_id = ?`,
         [qtd, id]);
       }
 
-      if (is_azul) {
+      if (cor=="azul") {
         let qtd = azuis + 1;
         await conn.execute(`UPDATE fila_espera SET qtd_azul = ? WHERE hospitais_id = ?`,
         [qtd, id]);
@@ -349,6 +353,8 @@ const hospitalService = {
           qtd_azul: azuis,
         } = rowsPulseiras[0];
 
+        console.log(`afr: lrj: ${laranjas} amr: ${amarelos} vrd: ${verdes} azs: ${azuis}`);
+
         //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
         const [rowsMedicos] = await conn.execute(
           `SELECT qtd, qtd_livres FROM qtd_medicos WHERE hospitais_id = ?`,
@@ -371,7 +377,7 @@ const hospitalService = {
 
         //atualiza a estimativa de espera na fila
         await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [tempoEstimado, id]);
-        console.log(tempoEstimado);
+        console.log(`tempo estimado em minutos: ${tempoEstimado}`);
 
     
       }catch(error){
