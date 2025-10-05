@@ -93,12 +93,7 @@ const userController = {
     recuperarSenha: async(req: Request, res: Response) =>{
         try{
             const { email } = req.body;
-            const result = await userService.recuperarSenhaService(email);
-
-            if(!result) return res.status(400).json({error:"Não foi possivel validar o email"});
-            if(result.error)return res.status(400).json(result.error);
-            
-
+            await userService.recuperarSenhaService(email);
             res.status(200).json({message:'Caso exista, email enviado'});
         }catch(error){
             if(error instanceof Error){
