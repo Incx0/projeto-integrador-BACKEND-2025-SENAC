@@ -1,35 +1,30 @@
-import nodemailer, { Transporter } from "nodemailer";
+// email.middleware.ts
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-console.log("User:", process.env.EMAIL_USER);
-console.log("Pass:", process.env.EMAIL_PASS);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-//info de login do gmail
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-});
-
-// função para enviar email
-export const sendMail = async (to: string, subject: string, text: string, html?: string) => {
+export const sendMail = async (
+  to: string,
+  subject: string,
+  text: string,
+  html?: string
+) => {
   try {
-    await transporter.sendMail({
-      from: `"noreply" <${process.env.EMAIL_USER}>`,
+    const data = await resend.emails.send({
+      from: "FilaMed <noreply@filamed.com>",
       to,
       subject,
+      html: html || `<p>${text}</p>`,
       text,
-      html,
     });
-    return { success: true };
-  } catch (err) {
+
+    console.log("📧 Email enviado com sucesso:", data);
+    return { success: true, data };
+  } catch (err: any) {
     console.error("Erro ao enviar email:", err);
-    return { success: false, error: err };
+    return { success: false, error: err.message || err };
   }
 };
