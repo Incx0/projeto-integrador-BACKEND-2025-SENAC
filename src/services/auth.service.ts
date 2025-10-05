@@ -63,6 +63,7 @@ export class AuthService {
       console.error("Erro no login:", error);
       return { error: "Erro ao efetuar login", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   }
@@ -79,6 +80,7 @@ export class AuthService {
       console.error("Erro no logout:", error);
       return { error: "Erro ao efetuar logout", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   }
@@ -113,6 +115,7 @@ export class AuthService {
       console.error("Erro ao validar token:", error);
       return { error: "Erro ao validar token", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   }
