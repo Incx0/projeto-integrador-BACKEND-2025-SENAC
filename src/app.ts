@@ -14,8 +14,8 @@ dotenv.config();
 
 // Inicializando o "app"
 const app = express();
-// Porta do servidor
-const port: number = 3000;
+// Porta do servidor de producao
+const port: number = 2324;
 
 // Conectando ao banco de dados
 dbMysql.connect();
