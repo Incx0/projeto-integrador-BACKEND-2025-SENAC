@@ -13,7 +13,7 @@ if (!GMAIL_CLIENT_ID || !GMAIL_CLIENT_SECRET || !GMAIL_REFRESH_TOKEN) {
 const oAuth2Client = new google.auth.OAuth2(
   GMAIL_CLIENT_ID,
   GMAIL_CLIENT_SECRET,
-  "http://localhost:3000"
+  "https://projeto-integrador-backend-2025-senac.onrender.com"
 );
 
 // Setando o refresh token
