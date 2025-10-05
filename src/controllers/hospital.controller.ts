@@ -71,7 +71,7 @@ const userController = {
         try {
             const foto = req.file ? req.file.buffer : null;
       
-            const result = await hospitalService.updateHospitalService({
+            const result:any = await hospitalService.updateHospitalService({
                 ...req.body,
                 foto
             });

@@ -23,6 +23,7 @@ const hospitalService = {
       console.error("Erro ao buscar hospitais:", error);
       return { error: "Erro ao buscar hospitais", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   },
@@ -49,6 +50,7 @@ const hospitalService = {
       console.error("Erro ao buscar hospital:", error);
       return { error: "Erro ao buscar hospital", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   },
@@ -129,6 +131,7 @@ const hospitalService = {
       console.error(error);
       return { error: "Erro ao cadastrar hospital", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   },
@@ -295,7 +298,10 @@ const hospitalService = {
       (qtdd_verde !== undefined && qtdd_verde !== null)||
       (qtdd_amarelo !== undefined && qtdd_amarelo !== null)||
       (qtdd_laranja !== undefined && qtdd_laranja !== null)){
-        calcularTempoFilaEspera(id);
+        const calcTempEspera:any = calcularTempoFilaEspera(id);
+        if(calcTempEspera.error || !calcTempEspera){
+          return [{ message: "Hospital atualizado com sucesso" }, { error: "erro ao atualizar o tempo de espera" }]
+        }
       }
   
       return { message: "Hospital atualizado com sucesso" };
@@ -303,6 +309,7 @@ const hospitalService = {
       console.error(err);
       return { error: "Erro ao atualizar hospital", err };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   },
@@ -322,6 +329,7 @@ const hospitalService = {
       console.error("Erro ao deletar hospital:", error);
       return { error: "Erro ao deletar hospital", err: error };
     } finally {
+      //libera a conexão
       conn?.release();
     }
   },
