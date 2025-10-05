@@ -239,7 +239,7 @@ const userService = {
 
       //insere o novo codigo no banco
       await conn.execute(
-        `INSERT INTO \`codigos\` (user_id, codigo, tipo, expiracao) VALUES (?, ?)`,
+        `INSERT INTO \`codigos\` (user_id, codigo, expiracao) VALUES (?, ?, ?)`,
         [id, recupCode, expiracao]
       );
 
