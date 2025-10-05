@@ -15,6 +15,8 @@ const upload = multer();
 router.get("/", hospitalController.getAllhospitais);
 router.get("/all", hospitalController.getAllhospitais);
 router.get("/get-hospital", hospitalController.getHospital);
+router.post("/update-fila", hospitalController.updateFilaHospital);
+router.post("/remove-from-fila", hospitalController.updateRemoveFromFilaHospital);
 router.post("/add-hospital", autenticar, upload.single("foto"), hospitalController.addHospital);
 router.post("/update", autenticar, upload.single("foto"), hospitalController.updateHospital);
 router.post("/delete-hospital", autenticar, hospitalController.deleteHospital);

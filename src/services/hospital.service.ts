@@ -135,7 +135,261 @@ const hospitalService = {
       conn?.release();
     }
   },
-  updateHospitalService: async (hospital: any) => {
+
+  updateRemoveFromFilaHospitalService: async (hospital: any) => {
+    //desconstroi o "body"
+    let {
+      id
+    } = hospital;
+
+    //valida se o id veio
+    if (!id) return { error: "ID do hospital é obrigatório" };
+
+    //declara conexão
+    let conn:any;
+
+    try {
+      //chama a conexão
+      conn = await connection();
+      
+      const [rowsPulseiras] = await conn.execute(
+        `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
+        [id]
+      );
+      
+      //valida se trouxe as qtd de pulseira
+      if (!rowsPulseiras || rowsPulseiras.length === 0) {
+        throw new Error("não há nenhum registro de paciente encontrado");
+      }
+
+      //descontroi a row para obter as qtd de pulseiras
+      const {
+        qtd_laranja: laranjas,
+        qtd_amarelo: amarelos,
+        qtd_verde: verdes,
+        qtd_azul: azuis,
+      } = rowsPulseiras[0];
+
+      //sequencia de verificação e inserts dos campos enviados no body      
+      if (laranjas !== undefined && laranjas !== null && laranjas > 0) {
+        let qtd = Number(laranjas) - 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_laranja = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (amarelos !== undefined && amarelos !== null && laranjas == 0 && amarelos > 0) {
+        let qtd = Number(amarelos) - 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_amarelo = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (verdes !== undefined && verdes !== null && amarelos == 0 && laranjas == 0 && verdes > 0) {
+        let qtd = Number(verdes) - 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_verde = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (azuis !== undefined && azuis !== null && amarelos == 0 && laranjas == 0 && verdes == 0 && azuis > 0) {
+        let qtd = Number(azuis) - 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_azul = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      //começa a fazer as coisas para atualzar o tempo de fila
+      try{
+        //da um select da qtd pacientes na fila de espera
+        const [rowsPulseiras] = await conn.execute(
+          `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
+          [id]
+        );
+
+        await conn.execute(`UPDATE fila_espera SET tempo_espera = 0 WHERE hospitais_id = ?`, [id]);
+      
+        //valida se trouxe as qtd de pulseira
+        if (!rowsPulseiras || rowsPulseiras.length === 0) {
+          throw new Error("não há nenhum registro de paciente encontrado");
+        }
+
+        //descontroi a row para obter as qtd de pulseiras
+        const {
+          qtd_laranja: laranjas,
+          qtd_amarelo: amarelos,
+          qtd_verde: verdes,
+          qtd_azul: azuis,
+        } = rowsPulseiras[0];
+
+        //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
+        const [rowsMedicos] = await conn.execute(
+          `SELECT qtd, qtd_livres FROM qtd_medicos WHERE hospitais_id = ?`,
+          [id]
+        );
+    
+        //valida se retornou
+        if (!rowsMedicos || rowsMedicos.length === 0) {
+          throw new Error("não há nenhum registro de medico");
+        }
+    
+        //desconstroi a row
+        let { qtd: qtdMedicos, qtd_livres: qtdMedicosLivre} = rowsMedicos[0]
+    
+        //chama e envia os parametros para o helper que calcula o tempo estimado de espera
+        const tempoEstimado = await formulaCalcularPulseira(qtdMedicos, qtdMedicosLivre, laranjas, amarelos, verdes, azuis);
+
+        //valida se o tempo estimado foi executado com sucesso
+        if (!tempoEstimado && tempoEstimado !== 0) throw new Error('Erro ao calcular tempo estimado');
+
+        //atualiza a estimativa de espera na fila
+        await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [tempoEstimado, id]);
+        console.log(tempoEstimado);
+
+      }catch(error){
+        return {error:`Erro ao estimar o tempo de fila`}
+      }
+  
+      return { message: "Fila atualizado com sucesso" };
+    } catch (err) {
+      console.error(err);
+      return { error: "Erro ao atualizar Fila", err };
+    } finally {
+      //libera a conexão
+      conn?.release();
+    }
+  },
+
+  updateFilaHospitalService: async (hospital: any) => {
+    //desconstroi o "body"
+    let {
+      id,
+      is_laranja,
+      is_amarelo,
+      is_verde,
+      is_azul,
+    } = hospital;
+
+    //valida se o id veio
+    if (!id) return { error: "ID do hospital é obrigatório" };
+
+    //declara conexão
+    let conn:any;
+
+    try {
+      //chama a conexão
+      conn = await connection();
+      
+      const [rowsPulseiras] = await conn.execute(
+        `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
+        [id]
+      );
+      
+      //valida se trouxe as qtd de pulseira
+      if (!rowsPulseiras || rowsPulseiras.length === 0) {
+        throw new Error("não há nenhum registro de paciente encontrado");
+      }
+
+      //descontroi a row para obter as qtd de pulseiras
+      const {
+        qtd_laranja: laranjas,
+        qtd_amarelo: amarelos,
+        qtd_verde: verdes,
+        qtd_azul: azuis,
+      } = rowsPulseiras[0];
+
+      console.log(
+        laranjas,
+        amarelos,
+        verdes,
+        azuis
+      )
+
+      //sequencia de verificação e inserts dos campos enviados no body      
+      if (is_laranja) {
+        let qtd = laranjas + 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_laranja = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (is_amarelo) {
+        let qtd = amarelos + 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_amarelo = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (is_verde) {
+        let qtd = verdes + 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_verde = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      if (is_azul) {
+        let qtd = azuis + 1;
+        await conn.execute(`UPDATE fila_espera SET qtd_azul = ? WHERE hospitais_id = ?`,
+        [qtd, id]);
+      }
+
+      //começa a fazer as coisas para atualzar o tempo de fila
+      try{
+
+        const [rowsPulseiras] = await conn.execute(
+          `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
+          [id]
+        );
+
+        await conn.execute(`UPDATE fila_espera SET tempo_espera = 0 WHERE hospitais_id = ?`, [id]);
+      
+        //valida se trouxe as qtd de pulseira
+        if (!rowsPulseiras || rowsPulseiras.length === 0) {
+          throw new Error("não há nenhum registro de paciente encontrado");
+        }
+
+        //descontroi a row para obter as qtd de pulseiras
+        const {
+          qtd_laranja: laranjas,
+          qtd_amarelo: amarelos,
+          qtd_verde: verdes,
+          qtd_azul: azuis,
+        } = rowsPulseiras[0];
+
+        //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
+        const [rowsMedicos] = await conn.execute(
+          `SELECT qtd, qtd_livres FROM qtd_medicos WHERE hospitais_id = ?`,
+          [id]
+        );
+    
+        //valida se retornou
+        if (!rowsMedicos || rowsMedicos.length === 0) {
+          throw new Error("não há nenhum registro de medico");
+        }
+    
+        //desconstroi a row
+        let { qtd: qtdMedicos, qtd_livres: qtdMedicosLivre} = rowsMedicos[0]
+    
+        //chama e envia os parametros para o helper que calcula o tempo estimado de espera
+        const tempoEstimado = await formulaCalcularPulseira(qtdMedicos, qtdMedicosLivre, laranjas, amarelos, verdes, azuis);
+
+        //valida se o tempo estimado foi executado com sucesso
+        if (!tempoEstimado && tempoEstimado !== 0) throw new Error('Erro ao calcular tempo estimado');
+
+        //atualiza a estimativa de espera na fila
+        await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [tempoEstimado, id]);
+        console.log(tempoEstimado);
+
+    
+      }catch(error){
+        console.error('Erro interno ao estimar fila:', error);
+        return {error:`Erro ao estimar o tempo de fila`};
+      }
+  
+      return { message: "Fila atualizado com sucesso" };
+    } catch (err) {
+      console.error(err);
+      return { error: "Erro ao atualizar Fila", err };
+    } finally {
+      //libera a conexão
+      conn?.release();
+    }
+  },
+
+  updateHospitalService: async (hospital:any)=>{
     //desconstroi o "body"
     let {
       id,
@@ -173,6 +427,9 @@ const hospitalService = {
             `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
             [id]
           );
+
+          await conn.execute(`UPDATE fila_espera SET tempo_espera = 0 WHERE hospitais_id = ?`, [id]);
+          
           //valida se trouxe as qtd de pulseira
           if (!rowsPulseiras || rowsPulseiras.length === 0) {
             throw new Error("não há nenhum registro de paciente encontrado");
@@ -188,7 +445,7 @@ const hospitalService = {
 
           //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
           const [rowsMedicos] = await conn.execute(
-            `SELECT qtd, qtd_livre FROM qtd_medicos WHERE hospitais_id = ?`,
+            `SELECT qtd, qtd_livres FROM qtd_medicos WHERE hospitais_id = ?`,
             [id]
           );
 
@@ -198,7 +455,7 @@ const hospitalService = {
           }
 
           //desconstroi a row
-          let { qtd: qtdMedicos, qtd_livre: qtdMedicosLivre} = rowsMedicos[0]
+          let { qtd: qtdMedicos, qtd_livres: qtdMedicosLivre} = rowsMedicos[0]
 
           //chama e envia os parametros para o helper que calcula o tempo estimado de espera
           const tempoEstimado = formulaCalcularPulseira(qtdMedicos, qtdMedicosLivre, laranjas, amarelos, verdes, azuis);
@@ -313,6 +570,7 @@ const hospitalService = {
       conn?.release();
     }
   },
+
   deleteHospitalService: async (id: any) => {
     //declara conexão
     let conn;

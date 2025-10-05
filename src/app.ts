@@ -36,7 +36,7 @@ app.use("/auth", authRoute);
 app.use("/hospital", hospitalRoute);
 
 // Iniciando server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server rodando em projeto-integrador-backend-2025-senac.onrender.com (ou para teste internos localhost:${port})`);
 });
 
