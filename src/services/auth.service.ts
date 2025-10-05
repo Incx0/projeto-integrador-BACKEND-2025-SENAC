@@ -97,9 +97,9 @@ export class AuthService {
         WHERE s.token = ? and expiracao > NOW()`,
         [token]
       );
-
       if (!rows || rows.length === 0) return null;
 
+      //descontroi a sessao
       const sessao = rows[0];
 
       return {

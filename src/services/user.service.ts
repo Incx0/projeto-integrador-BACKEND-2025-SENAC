@@ -110,7 +110,7 @@ const userService = {
 
 
   updateUserService: async (user:any)=> {
-    let {id, usuario, email, senha, nome, nascimento}:any = user;
+    let {id, usuario, email, nome, nascimento}:any = user;
 
     
     let conn;
@@ -131,12 +131,6 @@ const userService = {
           `UPDATE users SET usuario = ? WHERE id = ?`,
           [usuario, id]
         )
-      }
-      if (senha) {
-        const updateSenha = await conn.execute(
-          `UPDATE users SET senha = ? WHERE id = ?`,
-          [senha, id]
-        );
       }
       if (nome) {
         const updateNome = await conn.execute(

@@ -94,7 +94,7 @@ const userController = {
         try{
             const { email } = req.body;
             const result = await userService.recuperarSenhaService(email);
-            const message = {message:'caso exista, email enviado'};
+            const message = {message:'Caso exista, email enviado'};
 
             if(!result) return res.status(400).json(message);
             if(result.error)return res.status(400).json(message);
@@ -117,10 +117,9 @@ const userController = {
         try{
             const result = await userService.deleteUserService(req.body.id);
 
-            if(result.error){
-                return res.status(400).json(result);
-            }
-            res.json(result)
+            if(result.error) return res.status(400).json(result);
+            if(!result) return res.status(400).json({error:"Erro ao deletar hospital"});
+            res.status(202).json({message:"Deletado com sucesso"})
         }catch(error){
             if(error instanceof Error){
                 console.error('Erro ao deletar hospital: ', error.message);
