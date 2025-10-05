@@ -1,7 +1,7 @@
 //importando dbMysql(basicamente o db);
 import dbMysql from "../database/dbMysql.js";
 
-
+import { formulaCalcularPulseira } from "../helpers/calc-pulseira.helper.js"
 
 import { ResultSetHeader } from "mysql2/promise";
 
@@ -56,8 +56,17 @@ const hospitalService = {
 
   //adiciona um hospital
   addHospitalService: async (hospital: any) => {
-    //descontroi o "body"
-    let { nome, lati, longi, uf, cidade, logradouro, bairro, foto } = hospital;
+    //desconstroi o "body"
+    let { 
+      nome, 
+      lati, 
+      longi, 
+      uf, 
+      cidade, 
+      logradouro, 
+      bairro, 
+      foto 
+    } = hospital;
 
     //valida se os "campos" existem
     if (!nome || !lati || !longi || !uf || !cidade || !logradouro || !bairro || !foto) {
@@ -71,51 +80,50 @@ const hospitalService = {
       //executa a conexão com o bd
       conn = await connection();
 
-      //verifica se já
-      const [rowsLati]: any = await conn.execute(
-        `SELECT lati FROM hospitais WHERE lati = ?`,
-        [lati]
+      //verifica se já existe algo nessa latitude e longitude
+      const [rowsLatiLongi]: any = await conn.execute(
+        `SELECT lati, longi FROM hospitais WHERE lati = ? AND longi = ?`,
+        [lati, longi]
       );
-      const [rowsLongi]: any = await conn.execute(
-        `SELECT longi FROM hospitais WHERE longi = ?`,
-        [longi]
-      );
+      //verifica se já existe algo nesse logradouro
       const [rowsLogradouro]: any = await conn.execute(
         `SELECT logradouro FROM hospitais WHERE logradouro like ? AND cidade = ? AND bairro = ? AND uf = ?`,
         [logradouro, cidade, bairro, uf]
       );
-  
-      const hasLati = rowsLati.length > 0;
-      const hasLongi = rowsLongi.length > 0;
+
+      //configura a mensagem de duplicidade conforme o necessário
+      const hasLatiLongi = rowsLatiLongi.length > 0;
       const hasLogradouro = rowsLogradouro.length > 0;
-  
-      if (hasLati || hasLongi || hasLogradouro) {
+      if (hasLatiLongi || hasLogradouro) {
         let msg = "Já existe um hospital com este(es/a/as)";
-        if (hasLati && hasLongi) msg += " cordenadas";
+        if (hasLatiLongi) msg += " cordenadas";
         if (hasLogradouro) msg += " logradouro";
         return { error: msg.trim() };
       }
-  
+
+      //insert do hospital
       const [insertHospital] = await conn.execute<ResultSetHeader>(
         `INSERT INTO hospitais (nome, lati, longi, uf, cidade, logradouro, bairro, foto) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [nome, lati, longi, uf, cidade, logradouro, bairro, foto]
       );
 
+      //desconstroi a row para pegar o id
       const hospitalId = insertHospital.insertId;
 
+      //insere os medicos base
       await conn.execute<ResultSetHeader>(
         `INSERT INTO qtd_medicos (qtd, qtd_livres, hospitais_id) 
          VALUES (?, ?, ?)`,
         [2, 1.0, hospitalId]
       );
 
+      //insere a fila base
       await conn.execute<ResultSetHeader>(
         `INSERT INTO fila_espera (qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul, tempo_espera, hospitais_id) 
          VALUES (?, ?, ?, ?, ?, ?)`,
         [0, 0, 0, 0, 0, hospitalId]
       );
-  
       return { message: "Hospital cadastrado com sucesso" };
     } catch (error) {
       console.error(error);
@@ -125,6 +133,7 @@ const hospitalService = {
     }
   },
   updateHospitalService: async (hospital: any) => {
+    //desconstroi o "body"
     let {
       id,
       nome,
@@ -143,83 +152,67 @@ const hospitalService = {
       tempo_espera,
       foto,
     } = hospital;
-  
+
+    //valida se o id veio
     if (!id) return { error: "ID do hospital é obrigatório" };
 
+    //declara conexão
     let conn:any;
 
     try {
+      //chama a conexão
       conn = await connection();
 
       const calcularTempoFilaEspera = async (id: number) => {
         try{
-          const [rowsId] = await conn.execute(
-            `SELECT qtd_pacientes_id, qtd_medicos_id FROM hospitais WHERE id = ?`,
+          //obtem as qtd de pulseira
+          const [rowsPulseiras] = await conn.execute(
+            `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE hospitais_id = ?`,
             [id]
           );
-          
-          if (!rowsId || rowsId.length === 0) {
-            throw new Error("Hospital não encontrado");
-          }
-
-          const { qtd_pacientes_id, qtd_medicos_id} = rowsId[0]
-
-          const [rowsPulseiras] = await conn.execute(
-            `SELECT qtd_laranja, qtd_amarelo, qtd_verde, qtd_azul FROM fila_espera WHERE id = ?`,
-            [qtd_pacientes_id]
-          );
-
+          //valida se trouxe as qtd de pulseira
           if (!rowsPulseiras || rowsPulseiras.length === 0) {
             throw new Error("não há nenhum registro de paciente encontrado");
           }
 
+          //descontroi a row para obter as qtd de pulseiras
           const {
             qtd_laranja: laranjas,
             qtd_amarelo: amarelos,
             qtd_verde: verdes,
             qtd_azul: azuis,
           } = rowsPulseiras[0];
-        
+
+          //obtem a qtd de médico(qtd) e porcentagem de médicos livres(qtd_livre)
           const [rowsMedicos] = await conn.execute(
-            `SELECT qtd, qtd_livre FROM qtd_medicos WHERE id = ?`,
-            [qtd_medicos_id]
+            `SELECT qtd, qtd_livre FROM qtd_medicos WHERE hospitais_id = ?`,
+            [id]
           );
 
+          //valida se retornou
           if (!rowsMedicos || rowsMedicos.length === 0) {
             throw new Error("não há nenhum registro de medico");
           }
 
+          //desconstroi a row
           let { qtd: qtdMedicos, qtd_livre: qtdMedicosLivre} = rowsMedicos[0]
-            
-          const divisor = qtdMedicosLivre > 0 ? qtdMedicosLivre : qtdMedicos;
-  
-          const media_atendimento_laranja = 10;
-          const media_atendimento_amarelo = 60;
-          const media_atendimento_verde = 120;
-          const media_atendimento_azul = 240;
-        
-          const peso = {
-            laranja: media_atendimento_laranja,
-            amarelo: media_atendimento_amarelo,
-            verde: media_atendimento_verde,
-            azul: media_atendimento_azul,
-          };
-        
-          const cargaTotal =
-          (laranjas * peso.laranja) + (amarelos * peso.amarelo) + (verdes * peso.verde) + (azuis * peso.azul);
-        
-          if(peso.laranja === 0) cargaTotal*0.5;
-          if(peso.laranja === 0 && peso.amarelo === 0) cargaTotal*0.25;
-  
-          const totalTempoEstimado = cargaTotal / divisor;
-  
-          await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [totalTempoEstimado, id]);
-          console.log(totalTempoEstimado)
+
+          //chama e envia os parametros para o helper que calcula o tempo estimado de espera
+          const tempoEstimado = formulaCalcularPulseira(qtdMedicos, qtdMedicosLivre, laranjas, amarelos, verdes, azuis);
+
+          //valida se o tempo estimado foi executado com sucesso
+          if(!tempoEstimado) throw new Error;
+
+          //atualiza a estimativa de espera na fila
+          await conn.execute(`UPDATE fila_espera SET tempo_espera = ? WHERE hospitais_id = ?`, [tempoEstimado, id]);
+          console.log(tempoEstimado)
 
         }catch(error){
           return {error:`Erro ao estimar o tempo de fila`}
         }
       };
+
+      //sequencia de verificação e inserts dos campos enviados no body
 
       if (lati !== undefined && lati !== null) {
         await conn.execute(`UPDATE hospitais SET lati = ? WHERE id = ?`,
@@ -296,6 +289,7 @@ const hospitalService = {
         [perc_medico_livre, id]);
       }
 
+      //verifica se foi atualizado as pulseiras a atualiza a estimativa
       if(
       (qtdd_azul !== undefined && qtdd_azul !== null)||
       (qtdd_verde !== undefined && qtdd_verde !== null)||
@@ -313,13 +307,16 @@ const hospitalService = {
     }
   },
   deleteHospitalService: async (id: any) => {
+    //declara conexão
     let conn;
     try {
+      //chama conexão
       conn = await connection();
       const [rows]: any = await conn.execute(
         `DELETE FROM hospitais WHERE id = ?`,
         [id]
       );
+
       return rows;
     } catch (error) {
       console.error("Erro ao deletar hospital:", error);
