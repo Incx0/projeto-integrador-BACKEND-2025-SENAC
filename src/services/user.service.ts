@@ -277,7 +277,7 @@ const userService = {
         [recupCode]
       );
       if (!rowsRecupCode || rowsRecupCode.length === 0) {
-        return {error:'Código inválido'};
+        return {message:'Código inválido'};
       }
 
       //desconstroi a row
