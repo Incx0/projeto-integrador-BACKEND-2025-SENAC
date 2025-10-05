@@ -15,10 +15,10 @@ const dbMysql = {
   connect: async () => {
     try {
       const connection = await pool.getConnection();
-      console.log("Conexão com o banco obtida do pool");
+      console.log("Query obtida da pool com sucesso");
       return connection;
     } catch (error) {
-      console.error("Erro ao conectar com o BD:", error);
+      console.error("Erro ao tentar dar Query na pool:", error);
       throw error;
     }
   }

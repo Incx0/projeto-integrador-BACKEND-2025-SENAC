@@ -276,7 +276,7 @@ const userService = {
         `SELECT user_id FROM codigos WHERE codigo = ? AND expiracao > NOW()`,
         [recupCode]
       );
-      if (!rowsRecupCode || rowsRecupCode.length === 0) {
+      if (!rowsRecupCode || rowsRecupCode.length === 0 || rowsRecupCode == null || rowsRecupCode[0] == "" || rowsRecupCode == undefined) {
         return {message:'Código inválido'};
       }
 
@@ -285,14 +285,16 @@ const userService = {
 
       //deleta o codigo para segurança
       await conn.execute(
-        `DELETE FROM codigos WHERE id = ?`,
+        `DELETE FROM codigos WHERE user_id = ?`,
         [id]
       );
+
+      const senhaHash = await hashSenha(senhaNova);
 
       //atualiza a senha do usuário
       const updateSenha = await conn.execute(
         `UPDATE users SET senha = ? WHERE id = ?`,
-        [senhaNova, id]
+        [senhaHash, id]
       );
 
       return {message:'Senha do usuário atualizada com sucesso'};
