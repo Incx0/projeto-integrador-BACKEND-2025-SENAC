@@ -1,11 +1,11 @@
 import mysql2 from "mysql2/promise";
 
 const pool = mysql2.createPool({
-  host: "yamabiko.proxy.rlwy.net",
+  host: "localhost",
   user: "root",
-  password: "aveolXRubmwhyUXKbyaxYmazTGDkkiOb",
+  password: "",
   database: "pi_2025",
-  port: 54280,
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10, // número máximo de conexões simultâneas
   queueLimit: 0

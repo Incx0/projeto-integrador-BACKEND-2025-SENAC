@@ -71,7 +71,7 @@ const hospitalService = {
     } = hospital;
 
     //valida se os "campos" existem
-    if (!nome || !lati || !longi || !uf || !cidade || !logradouro || !bairro || !foto) {
+    if (!nome || !lati || !longi || !uf || !cidade || !logradouro || !bairro) {
       return { error: "Insira os dados corretamente" };
     }
 
