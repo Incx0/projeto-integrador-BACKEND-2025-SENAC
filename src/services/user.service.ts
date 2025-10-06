@@ -281,7 +281,7 @@ const userService = {
       }
 
       //desconstroi a row
-      const id = rowsRecupCode[0].id;
+      const id = rowsRecupCode[0].user_id;
 
       //deleta o codigo para segurança
       await conn.execute(
